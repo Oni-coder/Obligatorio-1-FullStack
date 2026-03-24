@@ -15,11 +15,6 @@ export const obtenerPelicula = (req, res) => {
     }
     res.status(200).json({ pelicula });
 
-    /* if (!pelicula) {
-        res.status(404).json({ mensaje: "Película no encontrada" });
-    } else {
-        res.status(200).json({ pelicula });
-    } */
 };
 
 export const agregarPelicula = (req, res) => {
@@ -39,14 +34,6 @@ export const agregarPelicula = (req, res) => {
 
 export const eliminarPelicula = (req, res) => {
     const idPelicula = Number(req.params.id);
-
-    /* const pelicula = peliculas.find(p => p.id === idPelicula);
-    if (!pelicula) {
-        return res.status(404).json({ mensaje: "Película no encontrada" });
-    }
-
-    peliculas = peliculas.filter(p => p.id !== idPelicula);
-    res.status(200).json({ mensaje: "Película eliminada", pelicula }); */
 
 
     const index = peliculas.findIndex(p => p.id === idPelicula);

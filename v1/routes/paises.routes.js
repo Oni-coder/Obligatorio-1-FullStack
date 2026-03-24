@@ -24,17 +24,3 @@ router.get("/ciudades", (req, res) => {
 
 
 export default router;
-
-/* router.route("/")
-    .get((req, res) => {
-        res.json({ mensaje: "GET en /v1/paises" })
-    })
-    .post((req, res) => {
-        res.json({ mensaje: "POST en /v1/paises" })
-    })
-    .patch((req, res) => {
-        res.json({ mensaje: "PATCH en /v1/paises" })
-    })
-    .delete((req, res) => {
-        res.json({ mensaje: "DELETE en /v1/paises" })
-    }) */
