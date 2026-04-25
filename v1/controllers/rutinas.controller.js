@@ -38,9 +38,3 @@ export const eliminarRutina = async (req, res) => {
     const rutinaEliminada = await eliminarRutinaService(id);
     res.json({ message: `Eliminar rutina`, rutina: rutinaEliminada });
 }
-
-/* export const obtenerRutinasPorRangoPrecio = async (req, res) => {
-    const { min, max } = req.params;
-    const rutinas = await obtenerRutinasPorRangoPrecioService(min, max);
-    res.json({ message: `Obtener rutinas por rango de precio`, rutinas });
-} */

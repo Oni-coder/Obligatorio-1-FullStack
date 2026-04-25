@@ -7,12 +7,9 @@ export const agregarUsuario = async (req, res) => {
     res.json({ message: "Usuario creado", usuario });
 };
 
-
-
 export const cambiarPlan = async (req, res) => {
     try {
         const userId = req.user.id;
-
         const usuario = await cambiarPlanService(userId);
 
         res.json({ message: "Plan actualizado a premium", usuario });

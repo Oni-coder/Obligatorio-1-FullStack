@@ -1,4 +1,4 @@
-export const authorizeRoles = (...rolesPermitidos) => {
+export const authorizeRolesMiddleware = (...rolesPermitidos) => {
     return (req, res, next) => {
         if (!req.user) {
             return res.status(401).json({ message: "No autenticado" });

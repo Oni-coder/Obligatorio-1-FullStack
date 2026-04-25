@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const usuarioSchema = new mongoose.Schema({
     email: {
@@ -28,6 +29,12 @@ const usuarioSchema = new mongoose.Schema({
 
 }, {
     timestamps: true 
+});
+
+usuarioSchema.pre("save", function(){
+        if (!this.isModified("password")) return;
+        const passwordHash = bcrypt.hashSync(this.password, Number(process.env.SALT_ROUNDS));
+        this.password = passwordHash;
 });
 
 export default mongoose.model("Usuario", usuarioSchema);

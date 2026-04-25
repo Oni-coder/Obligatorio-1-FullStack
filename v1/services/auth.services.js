@@ -4,11 +4,11 @@ import jwt from "jsonwebtoken";
 
 export const registrarUsuarioService = async (usuario) => {
     const passwordHash = bcrypt.hashSync(usuario.password, Number(process.env.SALT_ROUNDS));
-    const nuevoUsuario = new Usuario({ ...usuario, password: passwordHash });
+    const nuevoUsuario = new Usuario(usuario);
     await nuevoUsuario.save();
     const token = jwt.sign({ id: nuevoUsuario._id }, process.env.SECRET_KEY, { expiresIn: "1d" });
     //evitar enviar el usuario, solo prueba
-    return { usuario: nuevoUsuario, token };
+    return {  token };
 }
 
 export const loginUsuarioService = async (email, password) => {
@@ -17,7 +17,7 @@ export const loginUsuarioService = async (email, password) => {
     if (!usuario) return { message: "Usuario no encontrado" };
     const isMatch = bcrypt.compareSync(password, usuario.password);
     if (!isMatch) return { message: "Contraseña incorrecta" };
-    const token = jwt.sign({ id: usuario._id }, process.env.SECRET_KEY, { expiresIn: "1d" });3
+    const token = jwt.sign({ id: usuario._id }, process.env.SECRET_KEY, { expiresIn: "1d" });
     //evitar enviar el usuario, solo prueba
-    return { usuario, token };
+    return {  token };
 }
