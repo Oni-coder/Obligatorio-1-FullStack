@@ -1,4 +1,5 @@
 import Rutina from "../models/rutina.model.js";
+import Usuario from "../models/usuario.model.js";
 import { isValidObjectId } from "mongoose";
 
 export const obtenerRutinasService = async () => {
