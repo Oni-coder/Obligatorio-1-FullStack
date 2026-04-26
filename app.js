@@ -19,6 +19,13 @@ app.use(cors(/* {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// const limiter = rateLimit({
+//     windowMs: 1 * 60 * 1000, // 1 minuto
+//     max: 4, // máximo 4 requests por IP
+//     message: 'Demasiadas solicitudes desde esta IP, intenta más tarde',
+// });
+// app.use(limiter);
+
 app.get("/", (req, res) => {
     res.send("¡Respuesta desde el servidor a la raiz!");
 })
