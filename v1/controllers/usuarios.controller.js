@@ -1,6 +1,6 @@
 
 import { crearUsuarioService } from "../services/usuarios.services.js";
-import { cambiarPlanService } from "../services/usuarios.services.js";
+import { cambiarPlanAPremiumService} from "../services/usuarios.services.js";
 
 export const agregarUsuario = async (req, res) => {
     const usuario = await crearUsuarioService(req.body);
@@ -10,7 +10,7 @@ export const agregarUsuario = async (req, res) => {
 export const cambiarPlan = async (req, res) => {
     try {
         const userId = req.user.id;
-        const usuario = await cambiarPlanService(userId);
+        const usuario = await cambiarPlanAPremiumService(userId);
 
         res.json({ message: "Plan actualizado a premium", usuario });
 

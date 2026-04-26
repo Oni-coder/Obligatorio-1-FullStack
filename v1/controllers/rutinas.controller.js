@@ -1,9 +1,10 @@
 import { crearRutinaService,
     obtenerRutinasService,
-    obtenerRutinaService,
+    buscarRutinaPorIdService,
     actualizarRutinaService,
     eliminarRutinaService,
-    obtenerRutinasPorRangoPrecioService
+    obtenerRutinasPorRangoPrecioService,
+    obtenerEjerciciosService
  } from "../services/rutinas.services.js";
 
 export const obtenerRutinas = async (req, res) => {
@@ -18,7 +19,7 @@ export const obtenerRutinas = async (req, res) => {
 
 export const obtenerRutina = async (req, res) => {
     const { id } = req.params;
-    const rutina = await obtenerRutinaService(id);
+    const rutina = await buscarRutinaPorIdService(id);
     res.json({ message: `Obtener rutina con ID ${id}`, rutina });
 }
 
@@ -37,4 +38,10 @@ export const eliminarRutina = async (req, res) => {
     const { id } = req.params;
     const rutinaEliminada = await eliminarRutinaService(id);
     res.json({ message: `Eliminar rutina`, rutina: rutinaEliminada });
+}
+
+
+export const obtenerEjercicios = async (req, res) => {
+    const ejercicios = await obtenerEjerciciosService();
+    res.json(ejercicios);
 }

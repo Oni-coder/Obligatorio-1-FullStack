@@ -1,5 +1,42 @@
 import Rutina from "../models/rutina.model.js";
 import { isValidObjectId } from "mongoose";
+import axios from "axios"
+
+
+
+export const obtenerEjerciciosService = async () => {
+  try {
+    const ejerciciosRes = await axios.get(
+      "https://wger.de/api/v2/exercise/?language=2"
+    );
+
+    const musculosRes = await axios.get(
+      "https://wger.de/api/v2/muscle/"
+    );
+
+    const musculosMap = {};
+    musculosRes.data.results.forEach(m => {
+      musculosMap[m.id] = m.name;
+    });
+
+    const ejercicios = ejerciciosRes.data.results.map(ej => ({
+      ...ej,
+      muscles_names: ej.muscles.map(id => musculosMap[id])
+    }));
+
+    return {
+      status: 200,
+      data: ejercicios
+    };
+
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Error al obtener ejercicios"
+    };
+  }
+};
+
 
 export const obtenerRutinasService = async () => {
     const rutinas = await Rutina.find();
@@ -108,3 +145,6 @@ export const obtenerRutinasPorRangoPrecioService = async (min, max) => {
     const rutinas = await Rutina.find({ precio: { $gte: min, $lte: max } });
     return rutinas;
 };
+
+
+
