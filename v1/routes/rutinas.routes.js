@@ -7,11 +7,11 @@ import {
     crearRutina,
     actualizarRutina,
     eliminarRutina,
-    obtenerEjercicios
+    obtenerMusculos
 } from "../controllers/rutinas.controller.js";
 
 const router = express.Router({ mergeParams: true });
-router.get("/ejercicios", obtenerEjercicios);
+router.get("/musculos", obtenerMusculos);
 router.get("/", obtenerRutinas);
 router.get("/:id", obtenerRutina);
 //router.get("/:min/:max", obtenerRutinasPorRangoPrecio);

@@ -5,7 +5,7 @@ import axios from "axios"
 
 
 
-export const obtenerEjerciciosService = async () => {
+export const obtenerMusculosService = async () => {
   try {
     const ejerciciosRes = await axios.get(
       "https://wger.de/api/v2/exercise/?language=2"
