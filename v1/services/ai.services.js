@@ -6,7 +6,8 @@ export const traducirYResumirEjerciciosService = async (ejercicios) => {
 
     const MODEL = "gemini-2.5-flash";
 
-    const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+    const ENDPOINT =
+        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
     const headers = {
         "Content-Type": "application/json",
@@ -14,17 +15,24 @@ export const traducirYResumirEjerciciosService = async (ejercicios) => {
     };
 
     const prompt = `
-    Traducí al español y resumí cada ejercicio en máximo 50 palabras.
+    Traducí estos ejercicios al español neutro.
 
-    Devolver formateado en parrafos.
+    IMPORTANTE:
+    - Son ejercicios de gimnasio.
+    - Usá lenguaje criollo del rio de la plata y simple.
+    - Evitá expresiones demasiado técnicas o regionales.
+    - Que suene claro y moderno.
+    - La descripción debe ser corta.
+    - Máximo 50 palabras por ejercicio.
+    - Explicá cómo se hace el ejercicio de forma resumida.
 
-    Ejemplo:
-    [
-      {
-        "nombre": "Press banca",
-        "descripcion": "Empujar barra acostado para trabajar pecho"
-      }
-    ]
+    Formato de respuesta:
+
+    Nombre del ejercicio
+
+    Descripción corta del ejercicio.
+
+    Separá cada ejercicio con una línea vacía.
 
     Ejercicios:
     ${JSON.stringify(ejercicios)}
@@ -38,9 +46,11 @@ export const traducirYResumirEjerciciosService = async (ejercicios) => {
         ]
     };
 
-    const response = await axios.post(ENDPOINT, body, { headers });
+    const response = await axios.post(
+        ENDPOINT,
+        body,
+        { headers }
+    );
 
-    const texto = response.data.candidates[0].content.parts[0].text;
-
-    return texto;
+    return response.data.candidates[0].content.parts[0].text;
 };
