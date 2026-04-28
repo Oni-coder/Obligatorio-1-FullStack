@@ -4,20 +4,23 @@ import { isValidObjectId } from "mongoose";
 import axios from "axios";
 
 export const obtenerEjerciciosParaMusculoService = async (musculo) => {
-  try {
-    const ejercicios = await axios.get("https://api.api-ninjas.com/v1/exercises?muscle=" + musculo);
-    
-    return {
-      status: 200,
-      data: ejercicios,
+    const API_KEY = process.env.API_NINJAS_KEY;
+    const ENDPOINT = `https://api.api-ninjas.com/v1/exercises?muscle=${musculo}`;
+
+    const headers = {
+        'Content-Type': 'application/json',
+        'X-Api-Key': API_KEY
     };
     
-  } catch (error) {
-    return {
-      status: 500,
-      error: "Error al obtener ejercicios",
-    };
-  }
+    axios.get(ENDPOINT, { headers })
+        .then(response => {
+            res.json({message: 'Lista de ejercicios para el músculo ' + musculo,
+                data: response.data});
+        })
+        .catch(error => {
+            console.error(error);
+            res.status(500).json({ message: 'Error al obtener ejercicios' });
+        });
 };
 
 export const obtenerRutinasService = async () => {
