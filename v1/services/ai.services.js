@@ -27,7 +27,7 @@ export const traducirYResumirEjerciciosService = async (ejercicios) => {
     ]
 
     Ejercicios:
-    ${(ejercicios)}
+    ${JSON.stringify(ejercicios)}
     `;
 
     const body = {
