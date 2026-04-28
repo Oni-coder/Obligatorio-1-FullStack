@@ -4,7 +4,7 @@ import { crearRutinaService,
     actualizarRutinaService,
     eliminarRutinaService,
     obtenerRutinasPorRangoPrecioService,
-    obtenerMusculosService
+    obtenerEjerciciosParaMusculoService
  } from "../services/rutinas.services.js";
 
 export const obtenerRutinas = async (req, res) => {
@@ -43,6 +43,6 @@ export const eliminarRutina = async (req, res) => {
 
 
 export const obtenerMusculos = async (req, res) => {
-    const ejercicios = await obtenerMusculosService();
+    const ejercicios = await obtenerEjerciciosParaMusculoService();
     res.json(ejercicios);
 }
