@@ -15,24 +15,25 @@ export const traducirYResumirEjerciciosService = async (ejercicios) => {
     };
 
     const prompt = `
-    Traducí estos ejercicios al español neutro.
+    Traducí estos ejercicios al español.
 
     IMPORTANTE:
-    - Son ejercicios de gimnasio.
-    - Usá lenguaje criollo del rio de la plata y simple.
-    - Evitá expresiones demasiado técnicas o regionales.
-    - Que suene claro y moderno.
-    - La descripción debe ser corta.
-    - Máximo 50 palabras por ejercicio.
-    - Explicá cómo se hace el ejercicio de forma resumida.
+    - Lenguaje claro y natural.
+    - Explicaciones cortas.
+    - Máximo 30 palabras.
+    - Evitá lenguaje técnico innecesario.
+    - No uses markdown.
+    - No uses \`\`\`.
+    - Respondé SOLO JSON válido.
 
-    Formato de respuesta:
+    Formato exacto:
 
-    Nombre del ejercicio
-
-    Descripción corta del ejercicio.
-
-    Separá cada ejercicio con una línea vacía.
+    [
+      {
+        "nombre": "Curl martillo",
+        "descripcion": "Levantá las mancuernas con agarre neutro."
+      }
+    ]
 
     Ejercicios:
     ${JSON.stringify(ejercicios)}
@@ -52,5 +53,8 @@ export const traducirYResumirEjerciciosService = async (ejercicios) => {
         { headers }
     );
 
-    return response.data.candidates[0].content.parts[0].text;
+    const texto =
+        response.data.candidates[0].content.parts[0].text;
+
+    return JSON.parse(texto);
 };
