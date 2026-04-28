@@ -16,7 +16,7 @@ export const traducirYResumirEjerciciosService = async (ejercicios) => {
     const prompt = `
     Traducí al español y resumí cada ejercicio en máximo 50 palabras.
 
-    Devolver SOLO un JSON válido.
+    Devolver formateado en parrafos.
 
     Ejemplo:
     [
@@ -27,7 +27,7 @@ export const traducirYResumirEjerciciosService = async (ejercicios) => {
     ]
 
     Ejercicios:
-    ${JSON.stringify(ejercicios)}
+    ${(ejercicios)}
     `;
 
     const body = {
