@@ -14,7 +14,7 @@ export const traducirYResumirEjerciciosService = async (ejercicios) => {
     };
 
     const prompt = `
-    Traducí al español y resumí cada ejercicio en máximo 15 palabras.
+    Traducí al español y resumí cada ejercicio en máximo 50 palabras.
 
     Devolver SOLO un JSON válido.
 
