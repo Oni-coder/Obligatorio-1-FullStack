@@ -43,12 +43,14 @@ export const eliminarRutina = async (req, res) => {
 
 
 export const obtenerEjerciciosParaMusculo = async (req, res) => {
+
     const { musculo } = req.params;
 
-    const ejercicios = await obtenerEjerciciosParaMusculoService(musculo);
+    const ejercicios =
+        await obtenerEjerciciosParaMusculoService(musculo);
 
     res.json({
-        message: `Lista de ejercicios para el músculo ${musculo}`,
+        message: `Ejercicios para ${musculo}`,
         data: ejercicios
     });
 };
