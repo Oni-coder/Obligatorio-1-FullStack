@@ -5,201 +5,230 @@ import axios from "axios";
 import { traducirYResumirEjerciciosService } from "./ai.services.js";
 
 export const obtenerEjerciciosParaMusculoService = async (musculo) => {
+
+  try {
+
+    const API_KEY =
+      process.env.API_NINJAS_KEY;
+
+    const ENDPOINT =
+      `https://api.api-ninjas.com/v1/exercises?muscle=${musculo}`;
+
+    const headers = {
+      "Content-Type": "application/json",
+      "X-Api-Key": API_KEY
+    };
+
+    // API externa
+
+    const response =
+      await axios.get(
+        ENDPOINT,
+        { headers }
+      );
+
+    const ejercicios =
+      response.data;
+
+    // FALLBACK IA
+
+    let ejerciciosTraducidos;
+
     try {
 
-        const API_KEY = process.env.API_NINJAS_KEY;
+      ejerciciosTraducidos =
+        await traducirYResumirEjerciciosService(
+          ejercicios
+        );
 
-        const ENDPOINT = `https://api.api-ninjas.com/v1/exercises?muscle=${musculo}`;
+    } catch (errorIA) {
 
-        const headers = {
-            "Content-Type": "application/json",
-            "X-Api-Key": API_KEY
-        };
+      console.error(
+        "Error IA:",
+        errorIA.message
+      );
 
-        const response = await axios.get(ENDPOINT, { headers });
-
-        const ejercicios = response.data;
-
-        const ejerciciosTraducidos =
-            await traducirYResumirEjerciciosService(ejercicios);
-
-        return ejerciciosTraducidos;
-
-    } catch (error) {
-
-        console.error(error);
-
-        const errorApi = new Error("Error al obtener ejercicios");
-        errorApi.status = 500;
-
-        throw errorApi;
+      // fallback
+      ejerciciosTraducidos =
+        ejercicios;
     }
+
+    return ejerciciosTraducidos;
+
+  } catch (error) {
+
+    console.error(error);
+
+    const errorApi = new Error(
+      "Error al obtener ejercicios"
+    );
+
+    errorApi.status = 500;
+
+    throw errorApi;
+  }
 };
 
 export const obtenerRutinasService = async ({
-    nombre,
-    nivelDificultad,
-    duracionMin,
-    duracionMax,
-    page,
-    limit
+  nombre,
+  nivelDificultad,
+  duracionMin,
+  duracionMax,
+  page,
+  limit,
+  userId
 }) => {
 
-    // VALIDACIONES
+  // VALIDAR USER ID
 
-    const pageNumber = Number(page);
-    const limitNumber = Number(limit);
+  if (!isValidObjectId(userId)) {
 
-    if (isNaN(pageNumber) || pageNumber < 1) {
+    const error = new Error(
+      "Usuario inválido"
+    );
 
-        const error = new Error(
-            "Page debe ser un número mayor a 0"
-        );
+    error.status = 400;
 
-        error.status = 400;
+    throw error;
+  }
 
-        throw error;
-    }
+  // convertir valores
 
-    if (isNaN(limitNumber) || limitNumber < 1) {
+  const pageNumber = Number(page);
+  const limitNumber = Number(limit);
 
-        const error = new Error(
-            "Limit debe ser un número mayor a 0"
-        );
+  // FILTROS
 
-        error.status = 400;
+  const filtros = {
+    user: userId
+  };
 
-        throw error;
-    }
+  // filtro nombre
 
-    if (
-        duracionMin &&
-        isNaN(Number(duracionMin))
-    ) {
+  if (nombre) {
 
-        const error = new Error(
-            "duracionMin debe ser numérico"
-        );
-
-        error.status = 400;
-
-        throw error;
-    }
-
-    if (
-        duracionMax &&
-        isNaN(Number(duracionMax))
-    ) {
-
-        const error = new Error(
-            "duracionMax debe ser numérico"
-        );
-
-        error.status = 400;
-
-        throw error;
-    }
-
-    const nivelesValidos = [
-        "Principiante",
-        "Intermedio",
-        "Avanzado"
-    ];
-
-    if (
-        nivelDificultad &&
-        !nivelesValidos.includes(nivelDificultad)
-    ) {
-
-        const error = new Error(
-            "Nivel de dificultad inválido"
-        );
-
-        error.status = 400;
-
-        throw error;
-    }
-
-    // FILTROS
-
-    const filtros = {};
-
-    if (nombre) {
-
-        filtros.nombre = {
-            $regex: nombre,
-            $options: "i"
-        };
-    }
-
-    if (nivelDificultad) {
-
-        filtros.nivelDificultad =
-            nivelDificultad;
-    }
-
-    if (duracionMin || duracionMax) {
-
-        filtros.duracion = {};
-
-        if (duracionMin) {
-
-            filtros.duracion.$gte =
-                Number(duracionMin);
-        }
-
-        if (duracionMax) {
-
-            filtros.duracion.$lte =
-                Number(duracionMax);
-        }
-    }
-
-    const skip =
-        (pageNumber - 1) * limitNumber;
-
-    const rutinas =
-        await Rutina.find(filtros)
-            .skip(skip)
-            .limit(limitNumber)
-            .populate("user", "email plan");
-
-    const total =
-        await Rutina.countDocuments(filtros);
-
-    return {
-
-        total,
-
-        page: pageNumber,
-
-        limit: limitNumber,
-
-        totalPages:
-            Math.ceil(total / limitNumber),
-
-        data: rutinas
+    filtros.nombre = {
+      $regex: nombre,
+      $options: "i"
     };
+  }
+
+  // filtro dificultad
+
+  if (nivelDificultad) {
+
+    filtros.nivelDificultad =
+      nivelDificultad;
+  }
+
+  // filtro duración
+
+  if (duracionMin || duracionMax) {
+
+    filtros.duracion = {};
+
+    if (duracionMin) {
+
+      filtros.duracion.$gte =
+        Number(duracionMin);
+    }
+
+    if (duracionMax) {
+
+      filtros.duracion.$lte =
+        Number(duracionMax);
+    }
+  }
+
+  // paginación
+
+  const skip =
+    (pageNumber - 1) * limitNumber;
+
+  const rutinas =
+    await Rutina.find(filtros)
+      .skip(skip)
+      .limit(limitNumber)
+      .populate("user", "email plan");
+
+  const total =
+    await Rutina.countDocuments(
+      filtros
+    );
+
+  return {
+
+    total,
+
+    page: pageNumber,
+
+    limit: limitNumber,
+
+    totalPages:
+      Math.ceil(total / limitNumber),
+
+    data: rutinas
+  };
 };
 
-export const buscarRutinaPorIdService = async (id) => {
-  if (!isValidObjectId(id)) {
-    const errorId = new Error("Id no válido");
-    errorId.status = 400;
-    errorId.details = { id };
-    throw errorId;
-  }
+export const buscarRutinaPorIdService = async (
+    id,
+    userId
+) => {
 
-  const rutina = await Rutina.findById(id);
+    // validar ObjectId
 
-  if (!rutina) {
-    const errorId = new Error("Rutina no encontrada");
-    errorId.status = 404;
-    errorId.details = { id };
-    throw errorId;
-  }
+    if (!isValidObjectId(id)) {
 
-  return rutina;
+        const error = new Error(
+            "Id no válido"
+        );
+
+        error.status = 400;
+
+        error.details = { id };
+
+        throw error;
+    }
+
+    // buscar rutina
+
+    const rutina =
+        await Rutina.findById(id)
+            .populate("user", "email plan");
+
+    // verificar existencia
+
+    if (!rutina) {
+
+        const error = new Error(
+            "Rutina no encontrada"
+        );
+
+        error.status = 404;
+
+        error.details = { id };
+
+        throw error;
+    }
+
+    // OWASP BOLA / IDOR
+
+    if (
+        rutina.user._id.toString() !==
+        userId
+    ) {
+
+        const error = new Error(
+            "No autorizado"
+        );
+
+        error.status = 403;
+
+        throw error;
+    }
+
+    return rutina;
 };
 
 export const crearRutinaService = async (data, userId) => {
@@ -242,44 +271,112 @@ export const crearRutinaService = async (data, userId) => {
   }
 };
 
-export const actualizarRutinaService = async (id, rutina) => {
-  if (!isValidObjectId(id)) {
-    const errorId = new Error("Id no válido");
-    errorId.status = 400;
-    errorId.details = { id };
-    throw errorId;
-  }
+export const actualizarRutinaService = async (
+    id,
+    data,
+    userId
+) => {
 
-  const rutinaActualizada = await Rutina.findByIdAndUpdate(id, rutina, {
-    returnDocument: "after",
-  });
+    if (!isValidObjectId(id)) {
 
-  if (!rutinaActualizada) {
-    const errorId = new Error("Rutina no encontrada");
-    errorId.status = 404;
-    errorId.details = { id };
-    throw errorId;
-  }
+        const errorId = new Error("Id no válido");
 
-  return rutinaActualizada;
+        errorId.status = 400;
+
+        throw errorId;
+    }
+
+    const rutina =
+        await Rutina.findById(id);
+
+    if (!rutina) {
+
+        const error = new Error(
+            "Rutina no encontrada"
+        );
+
+        error.status = 404;
+
+        throw error;
+    }
+
+    // OWASP BOLA CHECK
+
+    if (
+        rutina.user.toString() !==
+        userId
+    ) {
+
+        const error = new Error(
+            "No autorizado"
+        );
+
+        error.status = 403;
+
+        throw error;
+    }
+
+    // whitelist fields
+
+    rutina.nombre =
+        data.nombre ?? rutina.nombre;
+
+    rutina.duracion =
+        data.duracion ?? rutina.duracion;
+
+    rutina.nivelDificultad =
+        data.nivelDificultad ??
+        rutina.nivelDificultad;
+
+    await rutina.save();
+
+    return rutina;
 };
 
-export const eliminarRutinaService = async (id) => {
-  if (!isValidObjectId(id)) {
-    const errorId = new Error("Id no válido");
-    errorId.status = 400;
-    errorId.details = { id };
-    throw errorId;
-  }
+export const eliminarRutinaService = async ( id, userId) => {
 
-  const rutinaEliminada = await Rutina.findByIdAndDelete(id);
+    if (!isValidObjectId(id)) {
 
-  if (!rutinaEliminada) {
-    const errorId = new Error("Rutina no encontrada");
-    errorId.status = 404;
-    errorId.details = { id };
-    throw errorId;
-  }
+        const errorId = new Error(
+            "Id no válido"
+        );
 
-  return rutinaEliminada;
+        errorId.status = 400;
+
+        throw errorId;
+    }
+
+    const rutina =
+        await Rutina.findById(id);
+
+    if (!rutina) {
+
+        const error = new Error(
+            "Rutina no encontrada"
+        );
+
+        error.status = 404;
+
+        throw error;
+    }
+
+    // OWASP ownership
+
+    if (
+        rutina.user.toString() !==
+        userId
+    ) {
+
+        const error = new Error(
+            "No autorizado"
+        );
+
+        error.status = 403;
+
+        throw error;
+    }
+
+    await rutina.deleteOne();
+
+    return rutina;
 };

@@ -31,7 +31,8 @@ export const obtenerRutinas = async (
                 duracionMin,
                 duracionMax,
                 page,
-                limit
+                limit,
+                userId: req.user.id
             });
 
         res.json({
@@ -50,7 +51,7 @@ export const obtenerRutina = async (req, res, next) => {
         const { id } = req.params;
 
         const rutina =
-            await buscarRutinaPorIdService(id);
+            await buscarRutinaPorIdService(id, req.user.id);    
 
         res.json({
             message: `Obtener rutina con ID ${id}`,
