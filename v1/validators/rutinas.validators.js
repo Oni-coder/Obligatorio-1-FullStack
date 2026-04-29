@@ -39,10 +39,6 @@ export const obtenerRutinasSchema = Joi.object({
         "Avanzado"
     ),
 
-    duracionMin: Joi.number().min(1),
-
-    duracionMax: Joi.number().min(1),
-
     categoria: Joi.string().hex().length(24).messages({
         "string.hex": "La categoría debe ser un ID válido",
         "string.length": "La categoría debe ser un ID válido",

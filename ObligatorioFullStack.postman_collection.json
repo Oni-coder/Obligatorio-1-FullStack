@@ -1,0 +1,861 @@
+{
+  "info": {
+    "_postman_id": "obli-fullstack-api-collection",
+    "name": "Obligatorio FullStack API",
+    "description": "Colección completa para testing. Ejecutar con Collection Runner en el orden presentado para que el flujo funcione correctamente. Los emails se generan dinámicamente para permitir múltiples ejecuciones.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "prod_base_url", "value": "https://obligatorio-1-full-stack.vercel.app/v1", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "token2", "value": "", "type": "string" },
+    { "key": "admin_token", "value": "", "type": "string" },
+    { "key": "user_email", "value": "", "type": "string" },
+    { "key": "user2_email", "value": "", "type": "string" },
+    { "key": "admin_email", "value": "", "type": "string" },
+    { "key": "rutina_id", "value": "", "type": "string" },
+    { "key": "categoria_id", "value": "", "type": "string" },
+    { "key": "categoria_delete_id", "value": "", "type": "string" },
+    { "key": "cat1_nombre", "value": "", "type": "string" },
+    { "key": "cat2_nombre", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Registro - email inválido",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "const json = pm.response.json();",
+            "pm.test('Tiene error de validación', () => pm.expect(json).to.have.property('error'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"noesvalido\",\"password\":\"password123\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/auth/register", "host": ["{{prod_base_url}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Registro - password corta",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "const json = pm.response.json();",
+            "pm.test('Tiene error de validación', () => pm.expect(json).to.have.property('error'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"test@test.com\",\"password\":\"abc\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/auth/register", "host": ["{{prod_base_url}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Registro - usuario exitoso",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+              "pm.collectionVariables.set('user_email', 'user_' + Date.now() + '@test.com');"
+            ]}},
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "const json = pm.response.json();",
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Tiene token', () => pm.expect(json).to.have.property('token'));",
+              "pm.test('Tiene usuario', () => pm.expect(json).to.have.property('usuario'));",
+              "pm.test('Plan plus por defecto', () => pm.expect(json.usuario.plan).to.eql('plus'));",
+              "pm.test('Rol user por defecto', () => pm.expect(json.usuario.role).to.eql('user'));",
+              "pm.collectionVariables.set('token', json.token);"
+            ]}}
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"{{user_email}}\",\"password\":\"password123\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/auth/register", "host": ["{{prod_base_url}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Registro - admin exitoso",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+              "pm.collectionVariables.set('admin_email', 'admin_' + Date.now() + '@test.com');"
+            ]}},
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "const json = pm.response.json();",
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Tiene token', () => pm.expect(json).to.have.property('token'));",
+              "pm.test('Rol es admin', () => pm.expect(json.usuario.role).to.eql('admin'));",
+              "pm.collectionVariables.set('admin_token', json.token);"
+            ]}}
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"{{admin_email}}\",\"password\":\"password123\",\"role\":\"admin\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/auth/register", "host": ["{{prod_base_url}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Registro - usuario 2 (pruebas BOLA)",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+              "pm.collectionVariables.set('user2_email', 'user2_' + Date.now() + '@test.com');"
+            ]}},
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "const json = pm.response.json();",
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('token2', json.token);"
+            ]}}
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"{{user2_email}}\",\"password\":\"password123\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/auth/register", "host": ["{{prod_base_url}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Registro - email duplicado",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 409', () => pm.response.to.have.status(409));",
+            "const json = pm.response.json();",
+            "pm.test('Tiene mensaje de conflicto', () => pm.expect(json).to.have.property('message'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"{{user_email}}\",\"password\":\"password123\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/auth/register", "host": ["{{prod_base_url}}"], "path": ["auth", "register"] }
+          }
+        },
+        {
+          "name": "Login - usuario no existe",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"noexiste@noexiste.com\",\"password\":\"password123\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/auth/login", "host": ["{{prod_base_url}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - password incorrecta",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 401', () => pm.response.to.have.status(401));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"{{user_email}}\",\"password\":\"wrongpassword\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/auth/login", "host": ["{{prod_base_url}}"], "path": ["auth", "login"] }
+          }
+        },
+        {
+          "name": "Login - exitoso",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene token', () => pm.expect(json).to.have.property('token'));",
+            "pm.test('Tiene usuario', () => pm.expect(json).to.have.property('usuario'));",
+            "pm.collectionVariables.set('token', json.token);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"email\":\"{{user_email}}\",\"password\":\"password123\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/auth/login", "host": ["{{prod_base_url}}"], "path": ["auth", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categorías",
+      "item": [
+        {
+          "name": "Obtener categorías - sin token",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 401', () => pm.response.to.have.status(401));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{prod_base_url}}/categorias", "host": ["{{prod_base_url}}"], "path": ["categorias"] }
+          }
+        },
+        {
+          "name": "Crear categoría - sin token",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 401', () => pm.response.to.have.status(401));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Cardio\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/categorias", "host": ["{{prod_base_url}}"], "path": ["categorias"] }
+          }
+        },
+        {
+          "name": "Crear categoría - rol user (sin permiso)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 403', () => pm.response.to.have.status(403));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Cardio\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/categorias", "host": ["{{prod_base_url}}"], "path": ["categorias"] }
+          }
+        },
+        {
+          "name": "Crear categoría - nombre muy corto",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "const json = pm.response.json();",
+            "pm.test('Tiene error de validación', () => pm.expect(json).to.have.property('error'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"X\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/categorias", "host": ["{{prod_base_url}}"], "path": ["categorias"] }
+          }
+        },
+        {
+          "name": "Crear categoría - exitosa",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+              "pm.collectionVariables.set('cat1_nombre', 'Cat_' + Date.now());"
+            ]}},
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "const json = pm.response.json();",
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Tiene categoria', () => pm.expect(json).to.have.property('categoria'));",
+              "pm.test('Tiene _id', () => pm.expect(json.categoria).to.have.property('_id'));",
+              "pm.test('Nombre correcto', () => pm.expect(json.categoria.nombre).to.eql(pm.collectionVariables.get('cat1_nombre')));",
+              "pm.collectionVariables.set('categoria_id', json.categoria._id);"
+            ]}}
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"{{cat1_nombre}}\",\"descripcion\":\"Categoría de prueba\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/categorias", "host": ["{{prod_base_url}}"], "path": ["categorias"] }
+          }
+        },
+        {
+          "name": "Crear categoría - segunda (para eliminar)",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": [
+              "pm.collectionVariables.set('cat2_nombre', 'Cat2_' + Date.now());"
+            ]}},
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "const json = pm.response.json();",
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('categoria_delete_id', json.categoria._id);"
+            ]}}
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"{{cat2_nombre}}\",\"descripcion\":\"Para eliminar\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/categorias", "host": ["{{prod_base_url}}"], "path": ["categorias"] }
+          }
+        },
+        {
+          "name": "Crear categoría - nombre duplicado",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 409', () => pm.response.to.have.status(409));",
+            "const json = pm.response.json();",
+            "pm.test('Tiene mensaje de conflicto', () => pm.expect(json).to.have.property('message'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"{{cat1_nombre}}\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/categorias", "host": ["{{prod_base_url}}"], "path": ["categorias"] }
+          }
+        },
+        {
+          "name": "Obtener categorías",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene categorias', () => pm.expect(json).to.have.property('categorias'));",
+            "pm.test('Es array', () => pm.expect(json.categorias).to.be.an('array'));",
+            "pm.test('Al menos 2 categorías', () => pm.expect(json.categorias.length).to.be.at.least(2));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/categorias", "host": ["{{prod_base_url}}"], "path": ["categorias"] }
+          }
+        },
+        {
+          "name": "Obtener categoría por ID",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene categoria', () => pm.expect(json).to.have.property('categoria'));",
+            "pm.test('ID correcto', () => pm.expect(json.categoria._id).to.eql(pm.collectionVariables.get('categoria_id')));",
+            "pm.test('Nombre correcto', () => pm.expect(json.categoria.nombre).to.eql(pm.collectionVariables.get('cat1_nombre')));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/categorias/{{categoria_id}}", "host": ["{{prod_base_url}}"], "path": ["categorias", "{{categoria_id}}"] }
+          }
+        },
+        {
+          "name": "Obtener categoría - ID inválido",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/categorias/notanid", "host": ["{{prod_base_url}}"], "path": ["categorias", "notanid"] }
+          }
+        },
+        {
+          "name": "Obtener categoría - no existe",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/categorias/507f1f77bcf86cd799439011", "host": ["{{prod_base_url}}"], "path": ["categorias", "507f1f77bcf86cd799439011"] }
+          }
+        },
+        {
+          "name": "Actualizar categoría - exitosa",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene categoria', () => pm.expect(json).to.have.property('categoria'));",
+            "pm.test('Descripción actualizada', () => pm.expect(json.categoria.descripcion).to.eql('Descripción actualizada'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"descripcion\":\"Descripción actualizada\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/categorias/{{categoria_id}}", "host": ["{{prod_base_url}}"], "path": ["categorias", "{{categoria_id}}"] }
+          }
+        },
+        {
+          "name": "Actualizar categoría - nombre duplicado",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 409', () => pm.response.to.have.status(409));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"{{cat1_nombre}}\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/categorias/{{categoria_delete_id}}", "host": ["{{prod_base_url}}"], "path": ["categorias", "{{categoria_delete_id}}"] }
+          }
+        },
+        {
+          "name": "Eliminar categoría - exitosa",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene categoria eliminada', () => pm.expect(json).to.have.property('categoria'));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{prod_base_url}}/categorias/{{categoria_delete_id}}", "host": ["{{prod_base_url}}"], "path": ["categorias", "{{categoria_delete_id}}"] }
+          }
+        },
+        {
+          "name": "Eliminar categoría - no existe",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{prod_base_url}}/categorias/507f1f77bcf86cd799439011", "host": ["{{prod_base_url}}"], "path": ["categorias", "507f1f77bcf86cd799439011"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rutinas",
+      "item": [
+        {
+          "name": "Crear rutina - sin token",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 401', () => pm.response.to.have.status(401));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Rutina Test\",\"duracion\":30,\"nivelDificultad\":\"Principiante\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas", "host": ["{{prod_base_url}}"], "path": ["rutinas"] }
+          }
+        },
+        {
+          "name": "Crear rutina - datos inválidos (faltan campos)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "const json = pm.response.json();",
+            "pm.test('Tiene error de validación', () => pm.expect(json).to.have.property('error'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Rutina Test\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas", "host": ["{{prod_base_url}}"], "path": ["rutinas"] }
+          }
+        },
+        {
+          "name": "Crear rutina - nombre muy corto",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Ru\",\"duracion\":30,\"nivelDificultad\":\"Principiante\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas", "host": ["{{prod_base_url}}"], "path": ["rutinas"] }
+          }
+        },
+        {
+          "name": "Crear rutina 1 (plan plus)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('Tiene rutina', () => pm.expect(json).to.have.property('rutina'));",
+            "pm.test('Tiene _id', () => pm.expect(json.rutina).to.have.property('_id'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Rutina Cardio 1\",\"duracion\":30,\"nivelDificultad\":\"Principiante\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas", "host": ["{{prod_base_url}}"], "path": ["rutinas"] }
+          }
+        },
+        {
+          "name": "Crear rutina 2 (plan plus)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Rutina Fuerza 2\",\"duracion\":45,\"nivelDificultad\":\"Intermedio\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas", "host": ["{{prod_base_url}}"], "path": ["rutinas"] }
+          }
+        },
+        {
+          "name": "Crear rutina 3 (plan plus)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Rutina Flexibilidad 3\",\"duracion\":60,\"nivelDificultad\":\"Avanzado\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas", "host": ["{{prod_base_url}}"], "path": ["rutinas"] }
+          }
+        },
+        {
+          "name": "Crear rutina 4 con categoría (plan plus)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "pm.test('Tiene categoria asignada', () => pm.expect(json.rutina).to.have.property('categoria'));",
+            "pm.collectionVariables.set('rutina_id', json.rutina._id);"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Rutina Completa 4\",\"duracion\":90,\"nivelDificultad\":\"Avanzado\",\"categoria\":\"{{categoria_id}}\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas", "host": ["{{prod_base_url}}"], "path": ["rutinas"] }
+          }
+        },
+        {
+          "name": "Crear rutina 5 - límite plan plus",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 403', () => pm.response.to.have.status(403));",
+            "const json = pm.response.json();",
+            "pm.test('Tiene mensaje de límite', () => pm.expect(json.message).to.include('Límite'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Rutina Extra 5\",\"duracion\":30,\"nivelDificultad\":\"Principiante\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas", "host": ["{{prod_base_url}}"], "path": ["rutinas"] }
+          }
+        },
+        {
+          "name": "Cambiar plan plus a premium",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Plan actualizado a premium', () => pm.expect(json.usuario.plan).to.eql('premium'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/usuarios/plan", "host": ["{{prod_base_url}}"], "path": ["usuarios", "plan"] }
+          }
+        },
+        {
+          "name": "Crear rutina 5 - exitosa (plan premium)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 201', () => pm.response.to.have.status(201));",
+            "const json = pm.response.json();",
+            "pm.test('Rutina creada con plan premium', () => pm.expect(json).to.have.property('rutina'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Rutina Extra 5\",\"duracion\":30,\"nivelDificultad\":\"Principiante\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas", "host": ["{{prod_base_url}}"], "path": ["rutinas"] }
+          }
+        },
+        {
+          "name": "Obtener rutinas (paginado)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene total', () => pm.expect(json).to.have.property('total'));",
+            "pm.test('Tiene page', () => pm.expect(json).to.have.property('page'));",
+            "pm.test('Tiene limit', () => pm.expect(json).to.have.property('limit'));",
+            "pm.test('Tiene totalPages', () => pm.expect(json).to.have.property('totalPages'));",
+            "pm.test('Tiene data', () => pm.expect(json).to.have.property('data'));",
+            "pm.test('Data es array', () => pm.expect(json.data).to.be.an('array'));",
+            "pm.test('Paginación: limit respetado', () => pm.expect(json.data.length).to.be.at.most(3));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{prod_base_url}}/rutinas?page=1&limit=3",
+              "host": ["{{prod_base_url}}"],
+              "path": ["rutinas"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "3" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener rutinas con filtros",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Filtro aplicado - solo Avanzado', () => {",
+            "  json.data.forEach(r => pm.expect(r.nivelDificultad).to.eql('Avanzado'));",
+            "});"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{prod_base_url}}/rutinas?nivelDificultad=Avanzado&duracionMin=45",
+              "host": ["{{prod_base_url}}"],
+              "path": ["rutinas"],
+              "query": [
+                { "key": "nivelDificultad", "value": "Avanzado" },
+                { "key": "duracionMin", "value": "45" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener rutina por ID",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene rutina', () => pm.expect(json).to.have.property('rutina'));",
+            "pm.test('ID correcto', () => pm.expect(json.rutina._id).to.eql(pm.collectionVariables.get('rutina_id')));",
+            "pm.test('Categoría populada', () => pm.expect(json.rutina.categoria).to.be.an('object'));",
+            "pm.test('User populado', () => pm.expect(json.rutina.user).to.have.property('email'));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/rutinas/{{rutina_id}}", "host": ["{{prod_base_url}}"], "path": ["rutinas", "{{rutina_id}}"] }
+          }
+        },
+        {
+          "name": "Obtener rutina - BOLA (token de otro usuario)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 403', () => pm.response.to.have.status(403));",
+            "const json = pm.response.json();",
+            "pm.test('Mensaje no autorizado', () => pm.expect(json.message).to.include('autorizado'));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token2}}" }],
+            "url": { "raw": "{{prod_base_url}}/rutinas/{{rutina_id}}", "host": ["{{prod_base_url}}"], "path": ["rutinas", "{{rutina_id}}"] }
+          }
+        },
+        {
+          "name": "Obtener rutina - ID inválido",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/rutinas/notanid", "host": ["{{prod_base_url}}"], "path": ["rutinas", "notanid"] }
+          }
+        },
+        {
+          "name": "Obtener rutina - no existe",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/rutinas/507f1f77bcf86cd799439011", "host": ["{{prod_base_url}}"], "path": ["rutinas", "507f1f77bcf86cd799439011"] }
+          }
+        },
+        {
+          "name": "Actualizar rutina - exitosa",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene rutina actualizada', () => pm.expect(json).to.have.property('rutina'));",
+            "pm.test('Nombre actualizado', () => pm.expect(json.rutina.nombre).to.eql('Rutina Actualizada'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Rutina Actualizada\",\"duracion\":90,\"nivelDificultad\":\"Avanzado\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas/{{rutina_id}}", "host": ["{{prod_base_url}}"], "path": ["rutinas", "{{rutina_id}}"] }
+          }
+        },
+        {
+          "name": "Actualizar rutina - BOLA (token de otro usuario)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 403', () => pm.response.to.have.status(403));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token2}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Intento BOLA\",\"duracion\":30,\"nivelDificultad\":\"Principiante\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas/{{rutina_id}}", "host": ["{{prod_base_url}}"], "path": ["rutinas", "{{rutina_id}}"] }
+          }
+        },
+        {
+          "name": "Actualizar rutina - no existe",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\"nombre\":\"Rutina X\",\"duracion\":30,\"nivelDificultad\":\"Principiante\"}", "options": { "raw": { "language": "json" } } },
+            "url": { "raw": "{{prod_base_url}}/rutinas/507f1f77bcf86cd799439011", "host": ["{{prod_base_url}}"], "path": ["rutinas", "507f1f77bcf86cd799439011"] }
+          }
+        },
+        {
+          "name": "Eliminar rutina - BOLA (token de otro usuario)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 403', () => pm.response.to.have.status(403));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token2}}" }],
+            "url": { "raw": "{{prod_base_url}}/rutinas/{{rutina_id}}", "host": ["{{prod_base_url}}"], "path": ["rutinas", "{{rutina_id}}"] }
+          }
+        },
+        {
+          "name": "Obtener ejercicios para músculo",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene data', () => pm.expect(json).to.have.property('data'));",
+            "pm.test('Data es array', () => pm.expect(json.data).to.be.an('array'));"
+          ]}}],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/rutinas/musculos/biceps", "host": ["{{prod_base_url}}"], "path": ["rutinas", "musculos", "biceps"] }
+          }
+        },
+        {
+          "name": "Eliminar rutina - exitosa",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene rutina eliminada', () => pm.expect(json).to.have.property('rutina'));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/rutinas/{{rutina_id}}", "host": ["{{prod_base_url}}"], "path": ["rutinas", "{{rutina_id}}"] }
+          }
+        },
+        {
+          "name": "Eliminar rutina - no existe",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));"
+          ]}}],
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/rutinas/507f1f77bcf86cd799439011", "host": ["{{prod_base_url}}"], "path": ["rutinas", "507f1f77bcf86cd799439011"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "Cambiar plan - sin token",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 401', () => pm.response.to.have.status(401));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": { "raw": "{{prod_base_url}}/usuarios/plan", "host": ["{{prod_base_url}}"], "path": ["usuarios", "plan"] }
+          }
+        },
+        {
+          "name": "Cambiar plan - rol admin (sin permiso)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 403', () => pm.response.to.have.status(403));",
+            "const json = pm.response.json();",
+            "pm.test('Mensaje no autorizado', () => pm.expect(json).to.have.property('message'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{admin_token}}" }],
+            "url": { "raw": "{{prod_base_url}}/usuarios/plan", "host": ["{{prod_base_url}}"], "path": ["usuarios", "plan"] }
+          }
+        },
+        {
+          "name": "Cambiar plan - usuario ya es premium",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "const json = pm.response.json();",
+            "pm.test('Mensaje ya es premium', () => pm.expect(json.message).to.include('premium'));"
+          ]}}],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{prod_base_url}}/usuarios/plan", "host": ["{{prod_base_url}}"], "path": ["usuarios", "plan"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Uploads",
+      "item": [
+        {
+          "name": "Subir imagen - sin token",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 401', () => pm.response.to.have.status(401));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "formdata", "formdata": [] },
+            "url": { "raw": "{{prod_base_url}}/uploads", "host": ["{{prod_base_url}}"], "path": ["uploads"] }
+          }
+        },
+        {
+          "name": "Subir imagen - sin archivo",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 400', () => pm.response.to.have.status(400));",
+            "const json = pm.response.json();",
+            "pm.test('Tiene error', () => pm.expect(json).to.have.property('error'));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": { "mode": "formdata", "formdata": [] },
+            "url": { "raw": "{{prod_base_url}}/uploads", "host": ["{{prod_base_url}}"], "path": ["uploads"] }
+          }
+        },
+        {
+          "name": "Subir imagen - exitosa",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "const json = pm.response.json();",
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Tiene URL', () => pm.expect(json).to.have.property('url'));",
+            "pm.test('URL es string', () => pm.expect(json.url).to.be.a('string'));",
+            "pm.test('URL comienza con https', () => pm.expect(json.url).to.match(/^https/));"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "imagen", "type": "file", "src": [], "description": "Seleccionar imagen manualmente antes de ejecutar" }
+              ]
+            },
+            "url": { "raw": "{{prod_base_url}}/uploads", "host": ["{{prod_base_url}}"], "path": ["uploads"] }
+          }
+        }
+      ]
+    }
+  ]
+}

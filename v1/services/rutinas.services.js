@@ -16,7 +16,6 @@ export const obtenerEjerciciosParaMusculoService = async (musculo) => {
       "X-Api-Key": API_KEY,
     };
 
-    // API externa
     const response = await axios.get(ENDPOINT, { headers });
 
     const ejercicios = response.data;
@@ -41,7 +40,7 @@ export const obtenerEjerciciosParaMusculoService = async (musculo) => {
   }
 };
 
-export const obtenerRutinasService = async ({ nombre, nivelDificultad, duracionMin, duracionMax, categoria, page, limit, userId }) => {
+export const obtenerRutinasService = async ({ nombre, nivelDificultad, categoria, page, limit, userId }) => {
 
   if (!isValidObjectId(userId)) {
     const error = new Error("Usuario inválido");
@@ -49,53 +48,17 @@ export const obtenerRutinasService = async ({ nombre, nivelDificultad, duracionM
     throw error;
   }
 
-  const pageNumber = Number(page);
-  const limitNumber = Number(limit);
-
-  // FILTROS
-
-  const filtros = {
-    user: userId,
-  };
-
-  // filtro nombre
-
-  if (nombre) {
-    filtros.nombre = {
-      $regex: nombre,
-      $options: "i",
-    };
-  }
-
-  // filtro dificultad
-
-  if (nivelDificultad) {
-    filtros.nivelDificultad = nivelDificultad;
-  }
-
-  // filtro duración
-
-  if (duracionMin || duracionMax) {
-    filtros.duracion = {};
-
-    if (duracionMin) {
-      filtros.duracion.$gte = Number(duracionMin);
-    }
-
-    if (duracionMax) {
-      filtros.duracion.$lte = Number(duracionMax);
-    }
-  }
-
-  // filtro categoría
-
-  if (categoria) {
-    filtros.categoria = categoria;
-  }
-
-  // paginación
-
+  const pageNumber = Number(page) || 1;
+  const limitNumber = Number(limit) || 10;
   const skip = (pageNumber - 1) * limitNumber;
+
+  const filtros = { user: userId };
+
+  if (nombre) filtros.nombre = { $regex: nombre, $options: "i" };
+  if (nivelDificultad) filtros.nivelDificultad = nivelDificultad;
+  if (categoria) filtros.categoria = categoria;
+
+  const total = await Rutina.countDocuments(filtros);
 
   const rutinas = await Rutina.find(filtros)
     .skip(skip)
@@ -103,19 +66,7 @@ export const obtenerRutinasService = async ({ nombre, nivelDificultad, duracionM
     .populate("user", "email plan")
     .populate("categoria", "nombre descripcion");
 
-  const total = await Rutina.countDocuments(filtros);
-
-  return {
-    total,
-
-    page: pageNumber,
-
-    limit: limitNumber,
-
-    totalPages: Math.ceil(total / limitNumber),
-
-    data: rutinas,
-  };
+  return { total, page: pageNumber, limit: limitNumber, totalPages: Math.ceil(total / limitNumber), data: rutinas };
 };
 
 export const buscarRutinaPorIdService = async (id, userId) => {
@@ -138,7 +89,7 @@ export const buscarRutinaPorIdService = async (id, userId) => {
     throw error;
   }
 
-  // OWASP BOLA/IDOR
+  // OWASP BOLA
   if (rutina.user._id.toString() !== userId) {
     const error = new Error("No autorizado");
     error.status = 403;
@@ -214,7 +165,7 @@ export const actualizarRutinaService = async (id, data, userId) => {
     throw error;
   }
 
-  // OWASP BOLA/IDOR
+  // OWASP BOLA
   if (rutina.user.toString() !== userId) {
     const error = new Error("No autorizado");
     error.status = 403;
@@ -229,8 +180,6 @@ export const actualizarRutinaService = async (id, data, userId) => {
       throw errorCategoria;
     }
   }
-
-  // whitelist fields
 
   rutina.nombre = data.nombre ?? rutina.nombre;
   rutina.duracion = data.duracion ?? rutina.duracion;
@@ -257,8 +206,7 @@ export const eliminarRutinaService = async (id, userId) => {
     throw error;
   }
 
-  // OWASP ownership
-
+  // OWASP BOLA
   if (rutina.user.toString() !== userId) {
     const error = new Error("No autorizado");
     error.status = 403;

@@ -9,14 +9,11 @@ import {
 
 export const obtenerRutinas = async (req, res, next) => {
   try {
-    const { nombre, nivelDificultad, duracionMin, duracionMax, categoria, page, limit } =
-      req.query;
+    const { nombre, nivelDificultad, categoria, page, limit } = req.query;
 
     const rutinas = await obtenerRutinasService({
       nombre,
       nivelDificultad,
-      duracionMin,
-      duracionMax,
       categoria,
       page,
       limit,
