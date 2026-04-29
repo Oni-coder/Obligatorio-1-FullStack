@@ -18,9 +18,9 @@ export const agregarUsuarioSchema = Joi.object({
         "string.empty": "El rol no puede estar vacío",
         "any.only": "El rol debe ser 'user' o 'admin'"
     }),
-    plan: Joi.string().valid("plus", "premium").default("free").messages({
+    plan: Joi.string().valid("plus", "premium").default("plus").messages({
         "string.base": "El plan debe ser una cadena de texto",
         "string.empty": "El plan no puede estar vacío",
-        "any.only": "El plan debe ser 'free', 'plus' o 'premium'"       
-    })  
+        "any.only": "El plan debe ser 'plus' o 'premium'"
+    })
 });

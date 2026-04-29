@@ -75,11 +75,13 @@ export const actualizarCategoriaService = async (id, data) => {
     }
   }
 
-  categoria.nombre = data.nombre ?? categoria.nombre;
-  categoria.descripcion = data.descripcion ?? categoria.descripcion;
+  const camposUpdate = {};
+  if (data.nombre !== undefined) camposUpdate.nombre = data.nombre;
+  if (data.descripcion !== undefined) camposUpdate.descripcion = data.descripcion;
 
-  await categoria.save();
-  return categoria;
+  const categoriaActualizada = await Categoria.findByIdAndUpdate(id, camposUpdate, { new: true });
+
+  return categoriaActualizada;
 };
 
 export const eliminarCategoriaService = async (id) => {

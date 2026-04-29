@@ -181,14 +181,16 @@ export const actualizarRutinaService = async (id, data, userId) => {
     }
   }
 
-  rutina.nombre = data.nombre ?? rutina.nombre;
-  rutina.duracion = data.duracion ?? rutina.duracion;
-  rutina.nivelDificultad = data.nivelDificultad ?? rutina.nivelDificultad;
-  rutina.categoria = data.categoria ?? rutina.categoria;
+  const camposUpdate = {
+    nombre: data.nombre,
+    duracion: data.duracion,
+    nivelDificultad: data.nivelDificultad,
+  };
+  if (data.categoria !== undefined) camposUpdate.categoria = data.categoria;
 
-  await rutina.save();
+  const rutinaActualizada = await Rutina.findByIdAndUpdate(id, camposUpdate, { new: true });
 
-  return rutina;
+  return rutinaActualizada;
 };
 
 export const eliminarRutinaService = async (id, userId) => {

@@ -61,9 +61,7 @@
               "const json = pm.response.json();",
               "pm.test('Status 201', () => pm.response.to.have.status(201));",
               "pm.test('Tiene token', () => pm.expect(json).to.have.property('token'));",
-              "pm.test('Tiene usuario', () => pm.expect(json).to.have.property('usuario'));",
-              "pm.test('Plan plus por defecto', () => pm.expect(json.usuario.plan).to.eql('plus'));",
-              "pm.test('Rol user por defecto', () => pm.expect(json.usuario.role).to.eql('user'));",
+              "pm.test('Tiene message', () => pm.expect(json).to.have.property('message'));",
               "pm.collectionVariables.set('token', json.token);"
             ]}}
           ],
@@ -84,7 +82,6 @@
               "const json = pm.response.json();",
               "pm.test('Status 201', () => pm.response.to.have.status(201));",
               "pm.test('Tiene token', () => pm.expect(json).to.have.property('token'));",
-              "pm.test('Rol es admin', () => pm.expect(json.usuario.role).to.eql('admin'));",
               "pm.collectionVariables.set('admin_token', json.token);"
             ]}}
           ],

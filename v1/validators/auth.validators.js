@@ -1,5 +1,19 @@
 import Joi from "joi";
 
+export const loginSchema = Joi.object({
+  email: Joi.string().email().required().messages({
+    "string.base": "El email debe ser una cadena de texto",
+    "string.empty": "El email no puede estar vacío",
+    "string.email": "El email debe ser un correo electrónico válido",
+    "any.required": "El email es obligatorio",
+  }),
+  password: Joi.string().required().messages({
+    "string.base": "La contraseña debe ser una cadena de texto",
+    "string.empty": "La contraseña no puede estar vacía",
+    "any.required": "La contraseña es obligatoria",
+  }),
+});
+
 export const registrarUsuarioSchema = Joi.object({
   email: Joi.string().email().required().messages({
     "string.base": "El email debe ser una cadena de texto",
@@ -18,9 +32,9 @@ export const registrarUsuarioSchema = Joi.object({
     "string.empty": "El rol no puede estar vacío",
     "any.only": "El rol debe ser 'user' o 'admin'",
   }),
-  plan: Joi.string().valid("plus", "premium").default("free").messages({
+  plan: Joi.string().valid("plus", "premium").default("plus").messages({
     "string.base": "El plan debe ser una cadena de texto",
     "string.empty": "El plan no puede estar vacío",
-    "any.only": "El plan debe ser 'free', 'plus' o 'premium'",
+    "any.only": "El plan debe ser 'plus' o 'premium'",
   }),
 });
