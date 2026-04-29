@@ -5,63 +5,41 @@ import axios from "axios";
 import { traducirYResumirEjerciciosService } from "./ai.services.js";
 
 export const obtenerEjerciciosParaMusculoService = async (musculo) => {
-
   try {
+    const API_KEY = process.env.API_NINJAS_KEY;
 
-    const API_KEY =
-      process.env.API_NINJAS_KEY;
-
-    const ENDPOINT =
-      `https://api.api-ninjas.com/v1/exercises?muscle=${musculo}`;
+    const ENDPOINT = `https://api.api-ninjas.com/v1/exercises?muscle=${musculo}`;
 
     const headers = {
       "Content-Type": "application/json",
-      "X-Api-Key": API_KEY
+      "X-Api-Key": API_KEY,
     };
 
     // API externa
 
-    const response =
-      await axios.get(
-        ENDPOINT,
-        { headers }
-      );
+    const response = await axios.get(ENDPOINT, { headers });
 
-    const ejercicios =
-      response.data;
+    const ejercicios = response.data;
 
     // FALLBACK IA
 
     let ejerciciosTraducidos;
 
     try {
-
       ejerciciosTraducidos =
-        await traducirYResumirEjerciciosService(
-          ejercicios
-        );
-
+        await traducirYResumirEjerciciosService(ejercicios);
     } catch (errorIA) {
-
-      console.error(
-        "Error IA:",
-        errorIA.message
-      );
+      console.error("Error IA:", errorIA.message);
 
       // fallback
-      ejerciciosTraducidos =
-        ejercicios;
+      ejerciciosTraducidos = ejercicios;
     }
 
     return ejerciciosTraducidos;
-
   } catch (error) {
-
     console.error(error);
 
-    const errorApi = new Error(
-      "Error al obtener ejercicios"
-    );
+    const errorApi = new Error("Error al obtener ejercicios");
 
     errorApi.status = 500;
 
@@ -76,16 +54,12 @@ export const obtenerRutinasService = async ({
   duracionMax,
   page,
   limit,
-  userId
+  userId,
 }) => {
-
   // VALIDAR USER ID
 
   if (!isValidObjectId(userId)) {
-
-    const error = new Error(
-      "Usuario inválido"
-    );
+    const error = new Error("Usuario inválido");
 
     error.status = 400;
 
@@ -100,135 +74,102 @@ export const obtenerRutinasService = async ({
   // FILTROS
 
   const filtros = {
-    user: userId
+    user: userId,
   };
 
   // filtro nombre
 
   if (nombre) {
-
     filtros.nombre = {
       $regex: nombre,
-      $options: "i"
+      $options: "i",
     };
   }
 
   // filtro dificultad
 
   if (nivelDificultad) {
-
-    filtros.nivelDificultad =
-      nivelDificultad;
+    filtros.nivelDificultad = nivelDificultad;
   }
 
   // filtro duración
 
   if (duracionMin || duracionMax) {
-
     filtros.duracion = {};
 
     if (duracionMin) {
-
-      filtros.duracion.$gte =
-        Number(duracionMin);
+      filtros.duracion.$gte = Number(duracionMin);
     }
 
     if (duracionMax) {
-
-      filtros.duracion.$lte =
-        Number(duracionMax);
+      filtros.duracion.$lte = Number(duracionMax);
     }
   }
 
   // paginación
 
-  const skip =
-    (pageNumber - 1) * limitNumber;
+  const skip = (pageNumber - 1) * limitNumber;
 
-  const rutinas =
-    await Rutina.find(filtros)
-      .skip(skip)
-      .limit(limitNumber)
-      .populate("user", "email plan");
+  const rutinas = await Rutina.find(filtros)
+    .skip(skip)
+    .limit(limitNumber)
+    .populate("user", "email plan");
 
-  const total =
-    await Rutina.countDocuments(
-      filtros
-    );
+  const total = await Rutina.countDocuments(filtros);
 
   return {
-
     total,
 
     page: pageNumber,
 
     limit: limitNumber,
 
-    totalPages:
-      Math.ceil(total / limitNumber),
+    totalPages: Math.ceil(total / limitNumber),
 
-    data: rutinas
+    data: rutinas,
   };
 };
 
-export const buscarRutinaPorIdService = async (
-    id,
-    userId
-) => {
+export const buscarRutinaPorIdService = async (id, userId) => {
+  // validar ObjectId
 
-    // validar ObjectId
+  if (!isValidObjectId(id)) {
+    const error = new Error("Id no válido");
 
-    if (!isValidObjectId(id)) {
+    error.status = 400;
 
-        const error = new Error(
-            "Id no válido"
-        );
+    error.details = { id };
 
-        error.status = 400;
+    throw error;
+  }
 
-        error.details = { id };
+  // buscar rutina
 
-        throw error;
-    }
+  const rutina = await Rutina.findById(id).populate("user", "email plan");
 
-    // buscar rutina
+  // verificar existencia
 
-    const rutina =
-        await Rutina.findById(id)
-            .populate("user", "email plan");
+  if (!rutina) {
+    const error = new Error("Rutina no encontrada");
 
-    // verificar existencia
+    error.status = 404;
 
-    if (!rutina) {
+    error.details = { id };
 
-        const error = new Error(
-            "Rutina no encontrada"
-        );
+    throw error;
+  }
 
-        error.status = 404;
+  // OWASP BOLA / IDOR
 
-        error.details = { id };
+  if (rutina.user._id.toString() !== userId) {
+    const error = new Error("No autorizado");
 
-        throw error;
-    }
+    error.status = 403;
 
-    // OWASP BOLA / IDOR
+    throw error;
+  }
 
-    if (
-        rutina.user._id.toString() !==
-        userId
-    ) {
-
-        const error = new Error(
-            "No autorizado"
-        );
-
-        error.status = 403;
-
-        throw error;
-    }
-
-    return rutina;
+  return rutina;
 };
 
 export const crearRutinaService = async (data, userId) => {
@@ -271,112 +212,78 @@ export const crearRutinaService = async (data, userId) => {
   }
 };
 
-export const actualizarRutinaService = async (
-    id,
-    data,
-    userId
-) => {
+export const actualizarRutinaService = async (id, data, userId) => {
+  if (!isValidObjectId(id)) {
+    const errorId = new Error("Id no válido");
 
-    if (!isValidObjectId(id)) {
+    errorId.status = 400;
 
-        const errorId = new Error("Id no válido");
+    throw errorId;
+  }
 
-        errorId.status = 400;
+  const rutina = await Rutina.findById(id);
 
-        throw errorId;
-    }
+  if (!rutina) {
+    const error = new Error("Rutina no encontrada");
 
-    const rutina =
-        await Rutina.findById(id);
+    error.status = 404;
 
-    if (!rutina) {
+    throw error;
+  }
 
-        const error = new Error(
-            "Rutina no encontrada"
-        );
+  // OWASP BOLA CHECK
 
-        error.status = 404;
+  if (rutina.user.toString() !== userId) {
+    const error = new Error("No autorizado");
 
-        throw error;
-    }
+    error.status = 403;
 
-    // OWASP BOLA CHECK
+    throw error;
+  }
 
-    if (
-        rutina.user.toString() !==
-        userId
-    ) {
+  // whitelist fields
 
-        const error = new Error(
-            "No autorizado"
-        );
+  rutina.nombre = data.nombre ?? rutina.nombre;
 
-        error.status = 403;
+  rutina.duracion = data.duracion ?? rutina.duracion;
 
-        throw error;
-    }
+  rutina.nivelDificultad = data.nivelDificultad ?? rutina.nivelDificultad;
 
-    // whitelist fields
+  await rutina.save();
 
-    rutina.nombre =
-        data.nombre ?? rutina.nombre;
-
-    rutina.duracion =
-        data.duracion ?? rutina.duracion;
-
-    rutina.nivelDificultad =
-        data.nivelDificultad ??
-        rutina.nivelDificultad;
-
-    await rutina.save();
-
-    return rutina;
+  return rutina;
 };
 
-export const eliminarRutinaService = async ( id, userId) => {
+export const eliminarRutinaService = async (id, userId) => {
+  if (!isValidObjectId(id)) {
+    const errorId = new Error("Id no válido");
 
-    if (!isValidObjectId(id)) {
+    errorId.status = 400;
 
-        const errorId = new Error(
-            "Id no válido"
-        );
+    throw errorId;
+  }
 
-        errorId.status = 400;
+  const rutina = await Rutina.findById(id);
 
-        throw errorId;
-    }
+  if (!rutina) {
+    const error = new Error("Rutina no encontrada");
 
-    const rutina =
-        await Rutina.findById(id);
+    error.status = 404;
 
-    if (!rutina) {
+    throw error;
+  }
 
-        const error = new Error(
-            "Rutina no encontrada"
-        );
+  // OWASP ownership
 
-        error.status = 404;
+  if (rutina.user.toString() !== userId) {
+    const error = new Error("No autorizado");
 
-        throw error;
-    }
+    error.status = 403;
 
-    // OWASP ownership
+    throw error;
+  }
 
-    if (
-        rutina.user.toString() !==
-        userId
-    ) {
+  await rutina.deleteOne();
 
-        const error = new Error(
-            "No autorizado"
-        );
-
-        error.status = 403;
-
-        throw error;
-    }
-
-    await rutina.deleteOne();
-
-    return rutina;
+  return rutina;
 };

@@ -3,150 +3,115 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export const registrarUsuarioService = async (usuarioData) => {
+  try {
+    const usuarioExistente = await Usuario.findOne({
+      email: usuarioData.email,
+    });
 
-    try {
+    if (usuarioExistente) {
+      const error = new Error("El email ya está registrado");
 
-        const usuarioExistente =
-            await Usuario.findOne({
-                email: usuarioData.email
-            });
+      error.status = 409;
 
-        if (usuarioExistente) {
-
-            const error = new Error(
-                "El email ya está registrado"
-            );
-
-            error.status = 409;
-
-            throw error;
-        }
-
-        const nuevoUsuario =
-            new Usuario(usuarioData);
-
-        await nuevoUsuario.save();
-
-        const token = jwt.sign(
-            {
-                id: nuevoUsuario._id,
-                role: nuevoUsuario.role,
-                plan: nuevoUsuario.plan
-            },
-            process.env.SECRET_KEY,
-            {
-                expiresIn: "1d"
-            }
-        );
-
-        const usuarioResponse = {
-            id: nuevoUsuario._id,
-            nombre: nuevoUsuario.nombre,
-            email: nuevoUsuario.email,
-            role: nuevoUsuario.role,
-            plan: nuevoUsuario.plan
-        };
-
-        return {
-            usuario: usuarioResponse,
-            token
-        };
-
-    } catch (error) {
-
-        if (error.status) {
-            throw error;
-        }
-
-        const errorRegistro =
-            new Error(
-                "Error al registrar usuario"
-            );
-
-        errorRegistro.status = 400;
-
-        throw errorRegistro;
+      throw error;
     }
+
+    const nuevoUsuario = new Usuario(usuarioData);
+
+    await nuevoUsuario.save();
+
+    const token = jwt.sign(
+      {
+        id: nuevoUsuario._id,
+        role: nuevoUsuario.role,
+        plan: nuevoUsuario.plan,
+      },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: "1d",
+      },
+    );
+
+    const usuarioResponse = {
+      id: nuevoUsuario._id,
+      nombre: nuevoUsuario.nombre,
+      email: nuevoUsuario.email,
+      role: nuevoUsuario.role,
+      plan: nuevoUsuario.plan,
+    };
+
+    return {
+      usuario: usuarioResponse,
+      token,
+    };
+  } catch (error) {
+    if (error.status) {
+      throw error;
+    }
+
+    const errorRegistro = new Error("Error al registrar usuario");
+
+    errorRegistro.status = 400;
+
+    throw errorRegistro;
+  }
 };
 
-export const loginUsuarioService = async (
-    email,
-    password
-) => {
+export const loginUsuarioService = async (email, password) => {
+  try {
+    const usuario = await Usuario.findOne({ email });
 
-    try {
+    if (!usuario) {
+      const error = new Error("Usuario o Contraseña incorrecta");
 
-        const usuario =
-            await Usuario.findOne({ email });
+      error.status = 404;
 
-        if (!usuario) {
-
-            const error =
-                new Error(
-                    "Usuario o Contraseña incorrecta"
-                );
-
-            error.status = 404;
-
-            throw error;
-        }
-
-        const isMatch =
-            await bcrypt.compare(
-                password,
-                usuario.password
-            );
-
-        if (!isMatch) {
-
-            const error =
-                new Error(
-                    "Usuario o Contraseña incorrecta"
-                );
-
-            error.status = 401;
-
-            throw error;
-        }
-
-        const token = jwt.sign(
-            {
-                id: usuario._id,
-                role: usuario.role,
-                plan: usuario.plan
-            },
-            process.env.SECRET_KEY,
-            {
-                expiresIn: "1d"
-            }
-        );
-
-        const usuarioResponse = {
-            id: usuario._id,
-            nombre: usuario.nombre,
-            email: usuario.email,
-            role: usuario.role,
-            plan: usuario.plan
-        };
-
-        return {
-            usuario: usuarioResponse,
-            token
-        };
-
-    } catch (error) {
-
-        if (error.status) {
-            throw error;
-        }
-
-        const errorLogin =
-            new Error(
-                "Error al iniciar sesión"
-            );
-
-        errorLogin.status = 500;
-
-        throw errorLogin;
+      throw error;
     }
+
+    const isMatch = await bcrypt.compare(password, usuario.password);
+
+    if (!isMatch) {
+      const error = new Error("Usuario o Contraseña incorrecta");
+
+      error.status = 401;
+
+      throw error;
+    }
+
+    const token = jwt.sign(
+      {
+        id: usuario._id,
+        role: usuario.role,
+        plan: usuario.plan,
+      },
+      process.env.SECRET_KEY,
+      {
+        expiresIn: "1d",
+      },
+    );
+
+    const usuarioResponse = {
+      id: usuario._id,
+      nombre: usuario.nombre,
+      email: usuario.email,
+      role: usuario.role,
+      plan: usuario.plan,
+    };
+
+    return {
+      usuario: usuarioResponse,
+      token,
+    };
+  } catch (error) {
+    if (error.status) {
+      throw error;
+    }
+
+    const errorLogin = new Error("Error al iniciar sesión");
+
+    errorLogin.status = 500;
+
+    throw errorLogin;
+  }
 };

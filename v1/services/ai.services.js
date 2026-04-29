@@ -1,20 +1,18 @@
 import axios from "axios";
 
 export const traducirYResumirEjerciciosService = async (ejercicios) => {
+  const API_KEY = process.env.GEMINI_25_API_KEY;
 
-    const API_KEY = process.env.GEMINI_25_API_KEY;
+  const MODEL = "gemini-2.5-flash";
 
-    const MODEL = "gemini-2.5-flash";
+  const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
-    const ENDPOINT =
-        `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+  const headers = {
+    "Content-Type": "application/json",
+    "x-goog-api-key": API_KEY,
+  };
 
-    const headers = {
-        "Content-Type": "application/json",
-        "x-goog-api-key": API_KEY
-    };
-
-    const prompt = `
+  const prompt = `
     Traducí estos ejercicios al español.
 
     IMPORTANTE:
@@ -39,22 +37,17 @@ export const traducirYResumirEjerciciosService = async (ejercicios) => {
     ${JSON.stringify(ejercicios)}
     `;
 
-    const body = {
-        contents: [
-            {
-                parts: [{ text: prompt }]
-            }
-        ]
-    };
+  const body = {
+    contents: [
+      {
+        parts: [{ text: prompt }],
+      },
+    ],
+  };
 
-    const response = await axios.post(
-        ENDPOINT,
-        body,
-        { headers }
-    );
+  const response = await axios.post(ENDPOINT, body, { headers });
 
-    const texto =
-        response.data.candidates[0].content.parts[0].text;
+  const texto = response.data.candidates[0].content.parts[0].text;
 
-    return JSON.parse(texto);
+  return JSON.parse(texto);
 };
