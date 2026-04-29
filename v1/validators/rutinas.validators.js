@@ -21,12 +21,5 @@ export const agregarRutinaSchema = Joi.object({
         "string.base": "El nivel de dificultad debe ser una cadena de texto",
         "string.empty": "El nivel de dificultad no puede estar vacío",
         "any.required": "El nivel de dificultad es obligatorio"
-    }),
-    user: Joi.string().hex().length(24).required().messages({
-        "string.base": "El ID de usuario debe ser una cadena de texto",
-        "string.empty": "El ID de usuario no puede estar vacío",
-        "string.hex": "El ID de usuario debe ser un string hexadecimal",
-        "string.length": "El ID de usuario debe tener exactamente {#limit} caracteres",
-        "any.required": "El ID de usuario es obligatorio"
     })
 });
