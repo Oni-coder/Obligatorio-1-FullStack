@@ -12,7 +12,7 @@ import {
   actualizarCategoria,
   eliminarCategoria,
 } from "../controllers/categorias.controller.js";
-
+//
 const router = express.Router({ mergeParams: true });
 
 router.get("/", obtenerCategorias);
