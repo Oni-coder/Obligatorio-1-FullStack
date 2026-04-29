@@ -1,56 +1,142 @@
-import { crearRutinaService,
+import {
+    crearRutinaService,
     obtenerRutinasService,
     buscarRutinaPorIdService,
     actualizarRutinaService,
     eliminarRutinaService,
-    obtenerRutinasPorRangoPrecioService,
     obtenerEjerciciosParaMusculoService
- } from "../services/rutinas.services.js";
+} from "../services/rutinas.services.js";
 
-export const obtenerRutinas = async (req, res) => {
-    const {precioMin, precioMax} = req.query;
-    if(precioMin !== undefined && precioMax !== undefined){
-        const rutinas = await obtenerRutinasPorRangoPrecioService(precioMin, precioMax);
-        return res.json({ message: `Obtener rutinas por rango de precio`, rutinas });
+export const obtenerRutinas = async (
+    req,
+    res,
+    next
+) => {
+
+    try {
+
+        const {
+            nombre,
+            nivelDificultad,
+            duracionMin,
+            duracionMax,
+            page,
+            limit
+        } = req.validatedQuery;
+
+        const rutinas =
+            await obtenerRutinasService({
+                nombre,
+                nivelDificultad,
+                duracionMin,
+                duracionMax,
+                page,
+                limit
+            });
+
+        res.json({
+            message: "Rutinas obtenidas",
+            ...rutinas
+        });
+
+    } catch (error) {
+        next(error);
     }
-    const rutinas = await obtenerRutinasService();
-    res.json({ message: "Obtener todas las rutinas", rutinas });
-}
+};
 
-export const obtenerRutina = async (req, res) => {
-    const { id } = req.params;
-    const rutina = await buscarRutinaPorIdService(id);
-    res.json({ message: `Obtener rutina con ID ${id}`, rutina });
-}
+export const obtenerRutina = async (req, res, next) => {
+    try {
 
-export const crearRutina = async (req, res) => {
-    const { id } = req.user;
-    const rutinaCreada = await crearRutinaService(req.body, id);
-    res.json({ message: `Rutina creada`, rutina: rutinaCreada });
-}
+        const { id } = req.params;
 
-export const actualizarRutina = async (req, res) => {
-    const { id } = req.params;
-    const rutinaModificada = await actualizarRutinaService(id, req.body);
-    res.json({ message: `Actualizar rutina`, rutina: rutinaModificada });
-}
+        const rutina =
+            await buscarRutinaPorIdService(id);
 
-export const eliminarRutina = async (req, res) => {
-    const { id } = req.params;
-    const rutinaEliminada = await eliminarRutinaService(id);
-    res.json({ message: `Eliminar rutina`, rutina: rutinaEliminada });
-}
+        res.json({
+            message: `Obtener rutina con ID ${id}`,
+            rutina
+        });
 
+    } catch (error) {
+        next(error);
+    }
+};
 
-export const obtenerEjerciciosParaMusculo = async (req, res) => {
+export const crearRutina = async (req, res, next) => {
+    try {
 
-    const { musculo } = req.params;
+        const { id } = req.user;
 
-    const ejercicios =
-        await obtenerEjerciciosParaMusculoService(musculo);
+        const rutinaCreada =
+            await crearRutinaService(req.body, id);
 
-    res.json({
-        message: `Ejercicios para ${musculo}`,
-        data: ejercicios
-    });
+        res.status(201).json({
+            message: "Rutina creada",
+            rutina: rutinaCreada
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const actualizarRutina = async (req, res, next) => {
+    try {
+
+        const { id } = req.params;
+
+        const rutinaModificada =
+            await actualizarRutinaService(
+                id,
+                req.body,
+                req.user.id
+            );
+
+        res.json({
+            message: "Rutina actualizada",
+            rutina: rutinaModificada
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const eliminarRutina = async (req, res, next) => {
+    try {
+
+        const { id } = req.params;
+
+        const rutinaEliminada =
+            await eliminarRutinaService(
+                id,
+                req.user.id
+            );
+
+        res.json({
+            message: "Rutina eliminada",
+            rutina: rutinaEliminada
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const obtenerEjerciciosParaMusculo = async (req, res, next) => {
+    try {
+
+        const { musculo } = req.params;
+
+        const ejercicios =
+            await obtenerEjerciciosParaMusculoService(musculo);
+
+        res.json({
+            message: `Ejercicios para ${musculo}`,
+            data: ejercicios
+        });
+
+    } catch (error) {
+        next(error);
+    }
 };

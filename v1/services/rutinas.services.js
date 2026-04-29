@@ -36,9 +36,150 @@ export const obtenerEjerciciosParaMusculoService = async (musculo) => {
     }
 };
 
-export const obtenerRutinasService = async () => {
-  const rutinas = await Rutina.find();
-  return rutinas;
+export const obtenerRutinasService = async ({
+    nombre,
+    nivelDificultad,
+    duracionMin,
+    duracionMax,
+    page,
+    limit
+}) => {
+
+    // VALIDACIONES
+
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+
+    if (isNaN(pageNumber) || pageNumber < 1) {
+
+        const error = new Error(
+            "Page debe ser un número mayor a 0"
+        );
+
+        error.status = 400;
+
+        throw error;
+    }
+
+    if (isNaN(limitNumber) || limitNumber < 1) {
+
+        const error = new Error(
+            "Limit debe ser un número mayor a 0"
+        );
+
+        error.status = 400;
+
+        throw error;
+    }
+
+    if (
+        duracionMin &&
+        isNaN(Number(duracionMin))
+    ) {
+
+        const error = new Error(
+            "duracionMin debe ser numérico"
+        );
+
+        error.status = 400;
+
+        throw error;
+    }
+
+    if (
+        duracionMax &&
+        isNaN(Number(duracionMax))
+    ) {
+
+        const error = new Error(
+            "duracionMax debe ser numérico"
+        );
+
+        error.status = 400;
+
+        throw error;
+    }
+
+    const nivelesValidos = [
+        "Principiante",
+        "Intermedio",
+        "Avanzado"
+    ];
+
+    if (
+        nivelDificultad &&
+        !nivelesValidos.includes(nivelDificultad)
+    ) {
+
+        const error = new Error(
+            "Nivel de dificultad inválido"
+        );
+
+        error.status = 400;
+
+        throw error;
+    }
+
+    // FILTROS
+
+    const filtros = {};
+
+    if (nombre) {
+
+        filtros.nombre = {
+            $regex: nombre,
+            $options: "i"
+        };
+    }
+
+    if (nivelDificultad) {
+
+        filtros.nivelDificultad =
+            nivelDificultad;
+    }
+
+    if (duracionMin || duracionMax) {
+
+        filtros.duracion = {};
+
+        if (duracionMin) {
+
+            filtros.duracion.$gte =
+                Number(duracionMin);
+        }
+
+        if (duracionMax) {
+
+            filtros.duracion.$lte =
+                Number(duracionMax);
+        }
+    }
+
+    const skip =
+        (pageNumber - 1) * limitNumber;
+
+    const rutinas =
+        await Rutina.find(filtros)
+            .skip(skip)
+            .limit(limitNumber)
+            .populate("user", "email plan");
+
+    const total =
+        await Rutina.countDocuments(filtros);
+
+    return {
+
+        total,
+
+        page: pageNumber,
+
+        limit: limitNumber,
+
+        totalPages:
+            Math.ceil(total / limitNumber),
+
+        data: rutinas
+    };
 };
 
 export const buscarRutinaPorIdService = async (id) => {
@@ -141,9 +282,4 @@ export const eliminarRutinaService = async (id) => {
   }
 
   return rutinaEliminada;
-};
-
-export const obtenerRutinasPorRangoPrecioService = async (min, max) => {
-  const rutinas = await Rutina.find({ precio: { $gte: min, $lte: max } });
-  return rutinas;
 };

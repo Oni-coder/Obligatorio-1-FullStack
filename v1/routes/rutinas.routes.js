@@ -1,6 +1,8 @@
 import express from "express";
 import { validateBodyMiddleware } from "../middlewares/validateBody.middleware.js";
+import { validateQueryMiddleware } from "../middlewares/validateQuery.middleware.js";
 import { agregarRutinaSchema } from "../validators/rutinas.validators.js";
+import { obtenerRutinasSchema } from "../validators/rutinas.validators.js";
 import {
     obtenerRutinas,
     obtenerRutina,
@@ -12,7 +14,7 @@ import {
 
 const router = express.Router({ mergeParams: true });
 router.get("/musculos/:musculo", obtenerEjerciciosParaMusculo);
-router.get("/", obtenerRutinas);
+router.get("/", validateQueryMiddleware(obtenerRutinasSchema), obtenerRutinas);
 router.get("/:id", obtenerRutina);
 //router.get("/:min/:max", obtenerRutinasPorRangoPrecio);
 router.post("/", validateBodyMiddleware(agregarRutinaSchema), crearRutina);
