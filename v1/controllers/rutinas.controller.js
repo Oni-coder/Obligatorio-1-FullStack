@@ -22,7 +22,7 @@ export const obtenerRutinas = async (
             duracionMax,
             page,
             limit
-        } = req.validatedQuery;
+        } = req.query;
 
         const rutinas =
             await obtenerRutinasService({

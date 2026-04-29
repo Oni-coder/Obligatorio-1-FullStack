@@ -2,7 +2,7 @@ import express from "express";
 import { validateBodyMiddleware } from "../middlewares/validateBody.middleware.js";
 import { validateQueryMiddleware } from "../middlewares/validateQuery.middleware.js";
 import { agregarRutinaSchema } from "../validators/rutinas.validators.js";
-import { obtenerRutinasSchema } from "../validators/rutinas.validators.js";
+import { obtenerRutinasSchema } from "../validators/obtenerRutinas.validators.js";
 import {
     obtenerRutinas,
     obtenerRutina,
