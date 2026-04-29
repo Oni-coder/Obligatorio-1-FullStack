@@ -7,7 +7,10 @@ const rutinaSchema = new mongoose.Schema({
     type: String,
     enum: ["Principiante", "Intermedio", "Avanzado"],
   },
-
+  categoria: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Categoria",
+  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Usuario",

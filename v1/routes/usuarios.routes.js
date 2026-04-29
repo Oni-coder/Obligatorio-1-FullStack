@@ -8,6 +8,6 @@ const router = express.Router({ mergeParams: true });
 
 //Peticiones a /v1/usuarios
 router.post('/', validateBodyMiddleware(agregarUsuarioSchema), agregarUsuario);
-router.patch("/plan", /* authorizeRolesMiddleware("user"),*/cambiarPlan);
+router.patch("/plan", authorizeRolesMiddleware("user"), cambiarPlan);
 
 export default router;

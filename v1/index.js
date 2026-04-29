@@ -2,8 +2,8 @@ import express from 'express';
 import usuariosRouter from "./routes/usuarios.routes.js";
 import authRouter from "./routes/auth.routes.js";
 import rutinasRouter from "./routes/rutinas.routes.js";
+import categoriasRouter from "./routes/categorias.routes.js";
 import { authenticateMiddleware } from './middlewares/authenticate.middleware.js';
-import aiRouter from "./routes/ai.routes.js";
 import uploadsRouter from "./routes/uploads.routes.js";
 const router = express.Router({ mergeParams: true });
 
@@ -14,17 +14,15 @@ router.get('/', (req, res) => {
 
 //rutas de login y registro de usuarios (auth)
 router.use("/auth", authRouter);
-router.use("/ai", aiRouter);
-router.use("/uploads", uploadsRouter)
-
 
 //middleware de verificación de token
 router.use(authenticateMiddleware);
 
-//Peticiones que lleguen a /v1/paises
+//Peticiones que lleguen a /v1/
 router.use("/usuarios", usuariosRouter);
 router.use("/rutinas", rutinasRouter);
-
+router.use("/categorias", categoriasRouter);
+router.use("/uploads", uploadsRouter)
 
 
 export default router;

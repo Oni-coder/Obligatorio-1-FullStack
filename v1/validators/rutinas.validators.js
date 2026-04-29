@@ -21,7 +21,12 @@ export const agregarRutinaSchema = Joi.object({
         "string.base": "El nivel de dificultad debe ser una cadena de texto",
         "string.empty": "El nivel de dificultad no puede estar vacío",
         "any.required": "El nivel de dificultad es obligatorio"
-    })
+    }),
+    categoria: Joi.string().hex().length(24).messages({
+        "string.base": "La categoría debe ser un ID válido",
+        "string.hex": "La categoría debe ser un ID válido",
+        "string.length": "La categoría debe ser un ID válido",
+    }),
 });
 
 export const obtenerRutinasSchema = Joi.object({
@@ -37,6 +42,11 @@ export const obtenerRutinasSchema = Joi.object({
     duracionMin: Joi.number().min(1),
 
     duracionMax: Joi.number().min(1),
+
+    categoria: Joi.string().hex().length(24).messages({
+        "string.hex": "La categoría debe ser un ID válido",
+        "string.length": "La categoría debe ser un ID válido",
+    }),
 
     page: Joi.number().min(1).default(1),
 

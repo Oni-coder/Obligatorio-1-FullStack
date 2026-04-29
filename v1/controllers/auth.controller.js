@@ -5,13 +5,9 @@ import {
 
 export const registrarUsuario = async (req, res, next) => {
   try {
-    const { usuario, token } = await registrarUsuarioService(req.body);
+    const { token } = await registrarUsuarioService(req.body);
 
-    res.status(201).json({
-      message: "Usuario registrado",
-      usuario,
-      token,
-    });
+    res.status(201).json({ message: "Usuario registrado", token });
   } catch (error) {
     next(error);
   }
@@ -23,10 +19,7 @@ export const loginUsuario = async (req, res, next) => {
 
     const result = await loginUsuarioService(email, password);
 
-    res.json({
-      message: "Usuario logueado",
-      ...result,
-    });
+    res.json({ message: "Usuario logueado", ...result });
   } catch (error) {
     next(error);
   }

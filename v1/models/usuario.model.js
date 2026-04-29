@@ -26,6 +26,13 @@ const usuarioSchema = new mongoose.Schema(
       enum: ["plus", "premium"],
       default: "plus",
     },
+
+    rutinas: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Rutina",
+      },
+    ],
   },
   {
     timestamps: true,

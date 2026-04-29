@@ -16,7 +16,6 @@ const router = express.Router({ mergeParams: true });
 router.get("/musculos/:musculo", obtenerEjerciciosParaMusculo);
 router.get("/", validateQueryMiddleware(obtenerRutinasSchema), obtenerRutinas);
 router.get("/:id", obtenerRutina);
-//router.get("/:min/:max", obtenerRutinasPorRangoPrecio);
 router.post("/", validateBodyMiddleware(agregarRutinaSchema), crearRutina);
 router.patch("/:id", validateBodyMiddleware(agregarRutinaSchema), actualizarRutina);
 router.delete("/:id", eliminarRutina);

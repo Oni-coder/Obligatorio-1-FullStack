@@ -21,7 +21,7 @@ export const cambiarPlanAPremiumService = async (userId) => {
     if (usuario.plan === "premium") {
         const errorPlan = new Error("Ya sos premium");
         errorPlan.status = 400;
-        errorPlan.details = { userId };F
+        errorPlan.details = { userId };
         throw errorPlan;
     }
 

@@ -1,5 +1,6 @@
 import Rutina from "../models/rutina.model.js";
 import Usuario from "../models/usuario.model.js";
+import Categoria from "../models/categoria.model.js";
 import { isValidObjectId } from "mongoose";
 import axios from "axios";
 import { traducirYResumirEjerciciosService } from "./ai.services.js";
@@ -16,57 +17,37 @@ export const obtenerEjerciciosParaMusculoService = async (musculo) => {
     };
 
     // API externa
-
     const response = await axios.get(ENDPOINT, { headers });
 
     const ejercicios = response.data;
 
-    // FALLBACK IA
-
     let ejerciciosTraducidos;
 
     try {
-      ejerciciosTraducidos =
-        await traducirYResumirEjerciciosService(ejercicios);
+      ejerciciosTraducidos = await traducirYResumirEjerciciosService(ejercicios);
     } catch (errorIA) {
       console.error("Error IA:", errorIA.message);
 
-      // fallback
+      // Si falla el llamado a la API de Gemini, se devuelve los ejercicios sin resumir ni traducir
       ejerciciosTraducidos = ejercicios;
     }
 
     return ejerciciosTraducidos;
   } catch (error) {
-    console.error(error);
 
     const errorApi = new Error("Error al obtener ejercicios");
-
     errorApi.status = 500;
-
     throw errorApi;
   }
 };
 
-export const obtenerRutinasService = async ({
-  nombre,
-  nivelDificultad,
-  duracionMin,
-  duracionMax,
-  page,
-  limit,
-  userId,
-}) => {
-  // VALIDAR USER ID
+export const obtenerRutinasService = async ({ nombre, nivelDificultad, duracionMin, duracionMax, categoria, page, limit, userId }) => {
 
   if (!isValidObjectId(userId)) {
     const error = new Error("Usuario inválido");
-
     error.status = 400;
-
     throw error;
   }
-
-  // convertir valores
 
   const pageNumber = Number(page);
   const limitNumber = Number(limit);
@@ -106,6 +87,12 @@ export const obtenerRutinasService = async ({
     }
   }
 
+  // filtro categoría
+
+  if (categoria) {
+    filtros.categoria = categoria;
+  }
+
   // paginación
 
   const skip = (pageNumber - 1) * limitNumber;
@@ -113,7 +100,8 @@ export const obtenerRutinasService = async ({
   const rutinas = await Rutina.find(filtros)
     .skip(skip)
     .limit(limitNumber)
-    .populate("user", "email plan");
+    .populate("user", "email plan")
+    .populate("categoria", "nombre descripcion");
 
   const total = await Rutina.countDocuments(filtros);
 
@@ -131,41 +119,29 @@ export const obtenerRutinasService = async ({
 };
 
 export const buscarRutinaPorIdService = async (id, userId) => {
-  // validar ObjectId
 
   if (!isValidObjectId(id)) {
     const error = new Error("Id no válido");
-
     error.status = 400;
-
     error.details = { id };
-
     throw error;
   }
 
-  // buscar rutina
-
-  const rutina = await Rutina.findById(id).populate("user", "email plan");
-
-  // verificar existencia
+  const rutina = await Rutina.findById(id)
+    .populate("user", "email plan")
+    .populate("categoria", "nombre descripcion");
 
   if (!rutina) {
     const error = new Error("Rutina no encontrada");
-
     error.status = 404;
-
     error.details = { id };
-
     throw error;
   }
 
-  // OWASP BOLA / IDOR
-
+  // OWASP BOLA/IDOR
   if (rutina.user._id.toString() !== userId) {
     const error = new Error("No autorizado");
-
     error.status = 403;
-
     throw error;
   }
 
@@ -192,19 +168,30 @@ export const crearRutinaService = async (data, userId) => {
       const cantidad = await Rutina.countDocuments({ user: userId });
 
       if (cantidad >= 4) {
-        const errorLimite = new Error(
-          "Límite de 4 rutinas alcanzado para plan plus",
-        );
+        const errorLimite = new Error("Límite de 4 rutinas alcanzado para plan plus");
         errorLimite.status = 403;
         throw errorLimite;
       }
     }
 
+    if (data.categoria) {
+      const categoriaExistente = await Categoria.findById(data.categoria);
+      if (!categoriaExistente) {
+        const errorCategoria = new Error("Categoría no encontrada");
+        errorCategoria.status = 404;
+        throw errorCategoria;
+      }
+    }
+
     const nuevaRutina = new Rutina({ ...data, user: userId });
     await nuevaRutina.save();
+
     return nuevaRutina;
+
   } catch (error) {
+
     if (error.status) throw error;
+
     const errorCreacion = new Error("Error al crear la rutina");
     errorCreacion.status = 400;
     errorCreacion.details = { error };
@@ -215,9 +202,7 @@ export const crearRutinaService = async (data, userId) => {
 export const actualizarRutinaService = async (id, data, userId) => {
   if (!isValidObjectId(id)) {
     const errorId = new Error("Id no válido");
-
     errorId.status = 400;
-
     throw errorId;
   }
 
@@ -225,29 +210,32 @@ export const actualizarRutinaService = async (id, data, userId) => {
 
   if (!rutina) {
     const error = new Error("Rutina no encontrada");
-
     error.status = 404;
-
     throw error;
   }
 
-  // OWASP BOLA CHECK
-
+  // OWASP BOLA/IDOR
   if (rutina.user.toString() !== userId) {
     const error = new Error("No autorizado");
-
     error.status = 403;
-
     throw error;
+  }
+
+  if (data.categoria) {
+    const categoriaExistente = await Categoria.findById(data.categoria);
+    if (!categoriaExistente) {
+      const errorCategoria = new Error("Categoría no encontrada");
+      errorCategoria.status = 404;
+      throw errorCategoria;
+    }
   }
 
   // whitelist fields
 
   rutina.nombre = data.nombre ?? rutina.nombre;
-
   rutina.duracion = data.duracion ?? rutina.duracion;
-
   rutina.nivelDificultad = data.nivelDificultad ?? rutina.nivelDificultad;
+  rutina.categoria = data.categoria ?? rutina.categoria;
 
   await rutina.save();
 
@@ -257,9 +245,7 @@ export const actualizarRutinaService = async (id, data, userId) => {
 export const eliminarRutinaService = async (id, userId) => {
   if (!isValidObjectId(id)) {
     const errorId = new Error("Id no válido");
-
     errorId.status = 400;
-
     throw errorId;
   }
 
@@ -267,9 +253,7 @@ export const eliminarRutinaService = async (id, userId) => {
 
   if (!rutina) {
     const error = new Error("Rutina no encontrada");
-
     error.status = 404;
-
     throw error;
   }
 
@@ -277,9 +261,7 @@ export const eliminarRutinaService = async (id, userId) => {
 
   if (rutina.user.toString() !== userId) {
     const error = new Error("No autorizado");
-
     error.status = 403;
-
     throw error;
   }
 
