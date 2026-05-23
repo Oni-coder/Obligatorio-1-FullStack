@@ -1,6 +1,7 @@
 import Rutina from "../models/rutina.model.js";
 import Usuario from "../models/usuario.model.js";
 import Categoria from "../models/categoria.model.js";
+import Ejercicio from "../models/ejercicio.model.js";
 import { isValidObjectId } from "mongoose";
 import axios from "axios";
 import { traducirYResumirEjerciciosService } from "./ai.services.js";
@@ -64,7 +65,8 @@ export const obtenerRutinasService = async ({ nombre, nivelDificultad, categoria
     .skip(skip)
     .limit(limitNumber)
     .populate("user", "email plan")
-    .populate("categoria", "nombre descripcion");
+    .populate("categoria", "nombre descripcion")
+    .populate("ejercicios", "nombre descripcion");
 
   return { total, page: pageNumber, limit: limitNumber, totalPages: Math.ceil(total / limitNumber), data: rutinas };
 };
@@ -80,7 +82,8 @@ export const buscarRutinaPorIdService = async (id, userId) => {
 
   const rutina = await Rutina.findById(id)
     .populate("user", "email plan")
-    .populate("categoria", "nombre descripcion");
+    .populate("categoria", "nombre descripcion")
+    .populate("ejercicios", "nombre descripcion");
 
   if (!rutina) {
     const error = new Error("Rutina no encontrada");
@@ -134,6 +137,15 @@ export const crearRutinaService = async (data, userId) => {
       }
     }
 
+    if (data.ejercicios && data.ejercicios.length > 0) {
+      const ejerciciosEncontrados = await Ejercicio.find({ _id: { $in: data.ejercicios } });
+      if (ejerciciosEncontrados.length !== data.ejercicios.length) {
+        const errorEjercicio = new Error("Uno o más ejercicios no encontrados");
+        errorEjercicio.status = 404;
+        throw errorEjercicio;
+      }
+    }
+
     const nuevaRutina = new Rutina({ ...data, user: userId });
     await nuevaRutina.save();
 
@@ -181,12 +193,22 @@ export const actualizarRutinaService = async (id, data, userId) => {
     }
   }
 
+  if (data.ejercicios && data.ejercicios.length > 0) {
+    const ejerciciosEncontrados = await Ejercicio.find({ _id: { $in: data.ejercicios } });
+    if (ejerciciosEncontrados.length !== data.ejercicios.length) {
+      const errorEjercicio = new Error("Uno o más ejercicios no encontrados");
+      errorEjercicio.status = 404;
+      throw errorEjercicio;
+    }
+  }
+
   const camposUpdate = {
     nombre: data.nombre,
     duracion: data.duracion,
     nivelDificultad: data.nivelDificultad,
   };
   if (data.categoria !== undefined) camposUpdate.categoria = data.categoria;
+  if (data.ejercicios !== undefined) camposUpdate.ejercicios = data.ejercicios;
 
   const rutinaActualizada = await Rutina.findByIdAndUpdate(id, camposUpdate, { new: true });
 

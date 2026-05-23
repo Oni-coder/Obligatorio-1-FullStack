@@ -27,6 +27,14 @@ export const agregarRutinaSchema = Joi.object({
         "string.hex": "La categoría debe ser un ID válido",
         "string.length": "La categoría debe ser un ID válido",
     }),
+    ejercicios: Joi.array().items(
+        Joi.string().hex().length(24).messages({
+            "string.hex": "Cada ejercicio debe ser un ID válido",
+            "string.length": "Cada ejercicio debe ser un ID válido",
+        })
+    ).messages({
+        "array.base": "Los ejercicios deben ser un arreglo de IDs",
+    }),
 });
 
 export const obtenerRutinasSchema = Joi.object({

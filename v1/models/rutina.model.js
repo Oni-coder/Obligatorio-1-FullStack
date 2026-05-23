@@ -11,6 +11,12 @@ const rutinaSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Categoria",
   },
+  ejercicios: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Ejercicio",
+    },
+  ],
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Usuario",
