@@ -1,0 +1,170 @@
+{
+  "info": {
+    "name": "Precarga Categorías - FitTrack",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://obligatorio-1-full-stack.vercel.app/v1",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "PEGA_AQUI_TU_JWT_DE_ADMIN",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Tren Superior",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categorias",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Tren Superior\",\n  \"descripcion\": \"Rutinas enfocadas en el desarrollo de pecho, espalda, hombros y brazos.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "02 - Tren Inferior",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categorias",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Tren Inferior\",\n  \"descripcion\": \"Rutinas orientadas al trabajo de cuádriceps, isquiotibiales, glúteos y gemelos.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "03 - Core y Abdominales",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categorias",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Core y Abdominales\",\n  \"descripcion\": \"Trabajo de estabilización y fortalecimiento del núcleo, abdomen y zona lumbar.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "04 - Cuerpo Completo",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categorias",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Cuerpo Completo\",\n  \"descripcion\": \"Sesiones que integran ejercicios para todos los grupos musculares en una sola rutina.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "05 - Cardio y Resistencia",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categorias",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Cardio y Resistencia\",\n  \"descripcion\": \"Rutinas de alta intensidad orientadas a mejorar la capacidad aeróbica y la resistencia cardiovascular.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "06 - Flexibilidad y Movilidad",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categorias",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Flexibilidad y Movilidad\",\n  \"descripcion\": \"Sesiones de estiramiento, yoga y movilidad articular para mejorar el rango de movimiento.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "07 - Fuerza y Potencia",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categorias",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Fuerza y Potencia\",\n  \"descripcion\": \"Rutinas de levantamiento pesado y movimientos explosivos para desarrollar fuerza máxima.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "08 - Funcional y HIIT",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categorias",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Funcional y HIIT\",\n  \"descripcion\": \"Entrenamiento funcional de intervalos de alta intensidad con ejercicios multiarticulares y peso corporal.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "09 - Rehabilitación",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categorias",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Rehabilitación\",\n  \"descripcion\": \"Rutinas de baja intensidad diseñadas para la recuperación muscular y el tratamiento preventivo de lesiones.\"\n}"
+        }
+      }
+    },
+    {
+      "name": "10 - Definición y Tonificación",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/categorias",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Definición y Tonificación\",\n  \"descripcion\": \"Rutinas de volumen moderado y alta repetición orientadas a la pérdida de grasa y la mejora del tono muscular.\"\n}"
+        }
+      }
+    }
+  ]
+}

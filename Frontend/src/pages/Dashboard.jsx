@@ -4,7 +4,7 @@ import Navbar from "../components/layout/Navbar";
 import WelcomeSection from "../components/dashboard/WelcomeSection";
 import ProfileCard from "../components/dashboard/ProfileCard";
 import RutinasWidget from "../components/dashboard/RutinasWidget";
-import ProgresoWidget from "../components/dashboard/ProgresoWidget";
+import AIAgentWidget from "../components/dashboard/AIAgentWidget";
 import EjerciciosWidget from "../components/dashboard/EjerciciosWidget";
 import CategoriasPanel from "../components/dashboard/CategoriasPanel";
 import RutinasManager from "../components/dashboard/RutinasManager";
@@ -32,7 +32,7 @@ const Dashboard = () => {
         <div className="dashboard-grid">
           <ProfileCard />
           <RutinasWidget />
-          <ProgresoWidget />
+          <AIAgentWidget />
           <EjerciciosWidget />
           <CategoriasPanel />
           <RutinasManager />

@@ -18,7 +18,7 @@ export const loginUser = createAsyncThunk(
     try {
       const { data } = await api.post("/auth/login", { email, password });
       const decoded = decodeJWT(data.token);
-      return { token: data.token, user: { ...decoded, email } };
+      return { token: data.token, user: { ...decoded, email, fotoPerfil: data.fotoPerfil || null } };
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Error al iniciar sesión");
     }
@@ -31,7 +31,7 @@ export const registerUser = createAsyncThunk(
     try {
       const { data } = await api.post("/auth/register", { email, password });
       const decoded = decodeJWT(data.token);
-      return { token: data.token, user: { ...decoded, email } };
+      return { token: data.token, user: { ...decoded, email, fotoPerfil: data.fotoPerfil || null } };
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Error al registrar usuario");
     }

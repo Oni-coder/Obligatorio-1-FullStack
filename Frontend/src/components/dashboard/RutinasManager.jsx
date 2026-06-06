@@ -156,15 +156,26 @@ const AddForm = ({ categorias, ejercicios, onCancel }) => {
 };
 
 /* ── Fila de rutina editable ─────────────────────────── */
-const RutinaRow = ({ rutina, categorias }) => {
+const RutinaRow = ({ rutina, categorias, ejercicios }) => {
   const dispatch = useDispatch();
   const [editing, setEditing] = useState(false);
+  const [showEjPicker, setShowEjPicker] = useState(false);
   const [editData, setEditData] = useState({
     nombre: rutina.nombre,
     duracion: rutina.duracion,
     nivelDificultad: rutina.nivelDificultad,
     categoria: rutina.categoria?._id || "",
+    ejercicios: (rutina.ejercicios || []).map((e) => e._id ?? e),
   });
+
+  const toggleEjercicio = (id) => {
+    setEditData((prev) => ({
+      ...prev,
+      ejercicios: prev.ejercicios.includes(id)
+        ? prev.ejercicios.filter((e) => e !== id)
+        : [...prev.ejercicios, id],
+    }));
+  };
 
   const handleSave = async () => {
     const payload = { ...editData };
@@ -173,6 +184,7 @@ const RutinaRow = ({ rutina, categorias }) => {
     if (updateRutina.fulfilled.match(result)) {
       toast.success("Rutina actualizada");
       setEditing(false);
+      setShowEjPicker(false);
     } else {
       toast.error(result.payload || "Error al actualizar");
     }
@@ -231,9 +243,51 @@ const RutinaRow = ({ rutina, categorias }) => {
           <button className="btn-icon-confirm" onClick={handleSave} title="Guardar">
             <Check size={13} strokeWidth={2.5} />
           </button>
-          <button className="btn-icon-cancel" onClick={() => setEditing(false)} title="Cancelar">
+          <button className="btn-icon-cancel" onClick={() => { setEditing(false); setShowEjPicker(false); }} title="Cancelar">
             <X size={13} strokeWidth={2} />
           </button>
+        </div>
+
+        {/* Picker de ejercicios inline */}
+        <div className="ej-picker ej-picker--inline">
+          <button
+            type="button"
+            className="ej-picker-toggle"
+            onClick={() => setShowEjPicker((v) => !v)}
+          >
+            <Flame size={13} strokeWidth={1.5} />
+            <span>
+              {editData.ejercicios.length === 0
+                ? "Ejercicios"
+                : `${editData.ejercicios.length} ejercicio${editData.ejercicios.length !== 1 ? "s" : ""}`}
+            </span>
+            {showEjPicker
+              ? <ChevronUp size={13} strokeWidth={1.5} />
+              : <ChevronDown size={13} strokeWidth={1.5} />
+            }
+          </button>
+
+          {showEjPicker && (
+            <div className="ej-picker-list">
+              {ejercicios.length === 0 ? (
+                <p className="ej-picker-empty">No hay ejercicios cargados</p>
+              ) : (
+                ejercicios.map((ej) => (
+                  <label key={ej._id} className="ej-picker-item">
+                    <input
+                      type="checkbox"
+                      checked={editData.ejercicios.includes(ej._id)}
+                      onChange={() => toggleEjercicio(ej._id)}
+                    />
+                    <span className="ej-picker-name">{ej.nombre}</span>
+                    {ej.descripcion && (
+                      <span className="ej-picker-desc">{ej.descripcion}</span>
+                    )}
+                  </label>
+                ))
+              )}
+            </div>
+          )}
         </div>
       </div>
     );
@@ -392,7 +446,7 @@ const RutinasManager = () => {
           </div>
         ) : (
           filtered.map((r) => (
-            <RutinaRow key={r._id} rutina={r} categorias={categorias} />
+            <RutinaRow key={r._id} rutina={r} categorias={categorias} ejercicios={ejercicios} />
           ))
         )}
       </div>

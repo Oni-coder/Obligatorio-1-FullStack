@@ -1,0 +1,170 @@
+{
+  "info": {
+    "name": "Precarga Ejercicios - FitTrack",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://obligatorio-1-full-stack.vercel.app/v1",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "PEGA_AQUI_TU_JWT_DE_ADMIN",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Sentadilla",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/ejercicios",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Sentadilla\",\n  \"descripcion\": \"Ejercicio compuesto para cuádriceps, glúteos e isquiotibiales. Desciende con la espalda recta hasta que los muslos queden paralelos al suelo.\",\n  \"imagen\": \"https://images.unsplash.com/photo-1584735935682-2f2b69dff9d2?w=600&q=80\"\n}"
+        }
+      }
+    },
+    {
+      "name": "02 - Press de Banca",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/ejercicios",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Press de Banca\",\n  \"descripcion\": \"Ejercicio de empuje horizontal para pecho, hombros anteriores y tríceps. Mantén los omóplatos retraídos durante todo el movimiento.\",\n  \"imagen\": \"https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80\"\n}"
+        }
+      }
+    },
+    {
+      "name": "03 - Peso Muerto",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/ejercicios",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Peso Muerto\",\n  \"descripcion\": \"Movimiento de bisagra de cadera que trabaja toda la cadena posterior. Mantén la barra pegada al cuerpo y la espalda neutra.\",\n  \"imagen\": \"https://images.unsplash.com/photo-1517963879433-6ad2b056d712?w=600&q=80\"\n}"
+        }
+      }
+    },
+    {
+      "name": "04 - Dominadas",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/ejercicios",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Dominadas\",\n  \"descripcion\": \"Ejercicio de tracción vertical con el propio peso corporal. Trabaja dorsal ancho, bíceps y parte media de la espalda.\",\n  \"imagen\": \"https://images.unsplash.com/photo-1598971639058-a13e98c20c08?w=600&q=80\"\n}"
+        }
+      }
+    },
+    {
+      "name": "05 - Press Militar",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/ejercicios",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Press Militar\",\n  \"descripcion\": \"Empuje vertical con barra o mancuernas para deltoides, tríceps y trapecio superior. Evita arquear la zona lumbar.\",\n  \"imagen\": \"https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=600&q=80\"\n}"
+        }
+      }
+    },
+    {
+      "name": "06 - Remo con Barra",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/ejercicios",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Remo con Barra\",\n  \"descripcion\": \"Tracción horizontal para dorsal ancho, romboides y bíceps. Inclina el torso a 45° y lleva la barra al abdomen.\",\n  \"imagen\": \"https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&q=80\"\n}"
+        }
+      }
+    },
+    {
+      "name": "07 - Zancadas",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/ejercicios",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Zancadas\",\n  \"descripcion\": \"Ejercicio unilateral de piernas que trabaja cuádriceps y glúteos. Mantén el torso erguido y la rodilla delantera sobre el pie.\",\n  \"imagen\": \"https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=600&q=80\"\n}"
+        }
+      }
+    },
+    {
+      "name": "08 - Plancha Abdominal",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/ejercicios",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Plancha Abdominal\",\n  \"descripcion\": \"Ejercicio isométrico de core. Apoya antebrazos y puntas de pie, mantén el cuerpo alineado sin hundir las caderas.\",\n  \"imagen\": \"https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=600&q=80\"\n}"
+        }
+      }
+    },
+    {
+      "name": "09 - Curl de Bíceps",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/ejercicios",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Curl de Bíceps\",\n  \"descripcion\": \"Ejercicio de aislamiento para bíceps con barra o mancuernas. Controla el descenso y evita balancear el torso.\",\n  \"imagen\": \"https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600&q=80\"\n}"
+        }
+      }
+    },
+    {
+      "name": "10 - Burpee",
+      "request": {
+        "method": "POST",
+        "url": "{{base_url}}/ejercicios",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+          { "key": "Content-Type",  "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Burpee\",\n  \"descripcion\": \"Ejercicio funcional de cuerpo completo que combina sentadilla, plancha, flexión y salto. Ideal para cardio y resistencia muscular.\",\n  \"imagen\": \"https://images.unsplash.com/photo-1517344884509-a0c97ec11bcc?w=600&q=80\"\n}"
+        }
+      }
+    }
+  ]
+}

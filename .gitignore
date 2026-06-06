@@ -19,3 +19,4 @@ coverage/
 # Carpeta de compilación / build
 dist/
 build/
+/AquiEstaElCodigoParaTomarDeBase

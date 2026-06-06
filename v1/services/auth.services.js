@@ -20,7 +20,7 @@ export const registrarUsuarioService = async (usuarioData) => {
             process.env.SECRET_KEY, { expiresIn: "1d" }
         );
 
-        return { token };
+        return { token, fotoPerfil: nuevoUsuario.fotoPerfil || null };
         
     } catch (error) {
 
@@ -56,7 +56,7 @@ export const loginUsuarioService = async (email, password) => {
             process.env.SECRET_KEY, { expiresIn: "1d"}
         );
 
-        return { token };
+        return { token, fotoPerfil: usuario.fotoPerfil || null };
 
     } catch (error) {
 
