@@ -1,65 +1,7 @@
-import { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { Dumbbell, Bell, User, Settings, LogOut } from "lucide-react";
-import { setCredentials, logout } from "../../features/auth.slice";
-
-const decodeToken = (token) => {
-  try {
-    return JSON.parse(atob(token.split(".")[1]));
-  } catch {
-    return null;
-  }
-};
-
-const TokenConnector = () => {
-  const [open, setOpen] = useState(false);
-  const [input, setInput] = useState("");
-  const dispatch = useDispatch();
-  const { token } = useSelector((s) => s.auth);
-
-  const connect = () => {
-    const t = input.trim();
-    if (!t) return;
-    const user = decodeToken(t);
-    dispatch(setCredentials({ token: t, user }));
-    setOpen(false);
-    setInput("");
-  };
-
-  if (token) {
-    return (
-      <button
-        className="navbar-icon-btn"
-        title="Cerrar sesión"
-        onClick={() => dispatch(logout())}
-      >
-        <LogOut size={16} strokeWidth={1.5} />
-      </button>
-    );
-  }
-
-  return (
-    <div style={{ position: "relative" }}>
-      <button className="connect-btn" onClick={() => setOpen((v) => !v)}>
-        Conectar
-      </button>
-      {open && (
-        <div className="token-dropdown">
-          <p>Pega tu token JWT para ver tus datos</p>
-          <input
-            type="text"
-            placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && connect()}
-            autoFocus
-          />
-          <button onClick={connect}>Conectar</button>
-        </div>
-      )}
-    </div>
-  );
-};
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { Dumbbell, Bell, LogOut, Settings } from "lucide-react";
+import { logout } from "../../features/auth.slice";
 
 const TABS = [
   { id: "dashboard", label: "Dashboard" },
@@ -68,34 +10,53 @@ const TABS = [
   { id: "categorias", label: "Categorias" },
 ];
 
-const Navbar = ({ activeTab = "dashboard" }) => (
-  <nav className="navbar">
-    <div className="navbar-logo">
-      <Dumbbell size={16} strokeWidth={2.2} />
-      FitTrack
-    </div>
+const Navbar = ({ activeTab = "dashboard" }) => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { user } = useSelector((s) => s.auth);
 
-    <div className="navbar-tabs">
-      {TABS.map((tab) => (
-        <button
-          key={tab.id}
-          className={`navbar-tab${activeTab === tab.id ? " active" : ""}`}
-        >
-          {tab.label}
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/login");
+  };
+
+  return (
+    <nav className="navbar">
+      <div className="navbar-logo">
+        <Dumbbell size={16} strokeWidth={2.2} />
+        FitTrack
+      </div>
+
+      <div className="navbar-tabs">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            className={`navbar-tab${activeTab === tab.id ? " active" : ""}`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="navbar-actions">
+        <div className="navbar-user-info">
+          <span className="navbar-user-email">{user?.email || ""}</span>
+          <span className={`navbar-plan-tag plan-${user?.plan || "plus"}`}>
+            {user?.plan || "plus"}
+          </span>
+        </div>
+        <button className="navbar-icon-btn" title="Ajustes">
+          <Settings size={16} strokeWidth={1.5} />
         </button>
-      ))}
-    </div>
-
-    <div className="navbar-actions">
-      <button className="navbar-icon-btn" title="Ajustes">
-        <Settings size={16} strokeWidth={1.5} />
-      </button>
-      <button className="navbar-icon-btn" title="Notificaciones">
-        <Bell size={16} strokeWidth={1.5} />
-      </button>
-      <TokenConnector />
-    </div>
-  </nav>
-);
+        <button className="navbar-icon-btn" title="Notificaciones">
+          <Bell size={16} strokeWidth={1.5} />
+        </button>
+        <button className="navbar-icon-btn" title="Cerrar sesión" onClick={handleLogout}>
+          <LogOut size={16} strokeWidth={1.5} />
+        </button>
+      </div>
+    </nav>
+  );
+};
 
 export default Navbar;

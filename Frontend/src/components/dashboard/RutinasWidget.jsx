@@ -1,21 +1,68 @@
 import { ArrowUpRight } from "lucide-react";
 import { useSelector } from "react-redux";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Tooltip,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 
-const BARS = [
-  { key: "Principiante", label: "Pri", style: "" },
-  { key: "Intermedio",   label: "Int", style: "bar-fill-yellow" },
-  { key: "Avanzado",     label: "Ava", style: "bar-fill-dark" },
-];
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip);
+
+const OPTIONS = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: (ctx) => ` ${ctx.raw} rutina${ctx.raw !== 1 ? "s" : ""}`,
+      },
+      bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 12 },
+    },
+  },
+  scales: {
+    x: {
+      grid: { display: false },
+      border: { display: false },
+      ticks: {
+        font: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
+        color: "#898989",
+      },
+    },
+    y: {
+      display: false,
+      beginAtZero: true,
+    },
+  },
+};
 
 const RutinasWidget = () => {
   const { data: rutinas } = useSelector((s) => s.rutinas);
 
-  const counts = BARS.map((b) => rutinas.filter((r) => r.nivelDificultad === b.key).length);
-  const maxCount = Math.max(...counts, 1);
+  const counts = {
+    Principiante: rutinas.filter((r) => r.nivelDificultad === "Principiante").length,
+    Intermedio: rutinas.filter((r) => r.nivelDificultad === "Intermedio").length,
+    Avanzado: rutinas.filter((r) => r.nivelDificultad === "Avanzado").length,
+  };
 
   const avgDuracion = rutinas.length
     ? Math.round(rutinas.reduce((acc, r) => acc + (r.duracion || 0), 0) / rutinas.length)
     : 0;
+
+  const chartData = {
+    labels: ["Principiante", "Intermedio", "Avanzado"],
+    datasets: [
+      {
+        data: [counts.Principiante, counts.Intermedio, counts.Avanzado],
+        backgroundColor: ["#e3e4e8", "#ffd85f", "#303030"],
+        borderRadius: 7,
+        borderSkipped: false,
+      },
+    ],
+  };
 
   return (
     <div className="card">
@@ -30,23 +77,8 @@ const RutinasWidget = () => {
           <ArrowUpRight size={15} strokeWidth={1.5} />
         </button>
       </div>
-
-      <div className="bar-chart">
-        {BARS.map((bar, i) => (
-          <div key={bar.key} className="bar-item">
-            <div className="bar-track">
-              <div
-                className={`bar-fill ${bar.style}`}
-                style={{ height: `${(counts[i] / maxCount) * 100}%` }}
-              >
-                {counts[i] > 0 && (
-                  <span className="bar-label-top">{counts[i]}</span>
-                )}
-              </div>
-            </div>
-            <span className="bar-day">{bar.label}</span>
-          </div>
-        ))}
+      <div style={{ height: 130 }}>
+        <Bar data={chartData} options={OPTIONS} />
       </div>
     </div>
   );

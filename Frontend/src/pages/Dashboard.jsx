@@ -7,7 +7,7 @@ import RutinasWidget from "../components/dashboard/RutinasWidget";
 import ProgresoWidget from "../components/dashboard/ProgresoWidget";
 import EjerciciosWidget from "../components/dashboard/EjerciciosWidget";
 import CategoriasPanel from "../components/dashboard/CategoriasPanel";
-import RutinasRecientes from "../components/dashboard/RutinasRecientes";
+import RutinasManager from "../components/dashboard/RutinasManager";
 import { fetchRutinas } from "../features/rutinas.slice";
 import { fetchEjercicios } from "../features/ejercicios.slice";
 import { fetchCategorias } from "../features/categorias.slice";
@@ -35,7 +35,7 @@ const Dashboard = () => {
           <ProgresoWidget />
           <EjerciciosWidget />
           <CategoriasPanel />
-          <RutinasRecientes />
+          <RutinasManager />
         </div>
       </div>
     </>
