@@ -8,7 +8,7 @@ const decodeJWT = (token) => {
     return null;
   }
 };
-
+//const
 const storedToken = localStorage.getItem("token");
 const storedUser = localStorage.getItem("user");
 
