@@ -5,7 +5,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import { toast } from "react-toastify";
 import {
   Plus, Flame, Clock, Pencil, Trash2, Check, X,
-  Search, SlidersHorizontal,
+  Search, SlidersHorizontal, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { fetchRutinas, createRutina, updateRutina, deleteRutina } from "../../features/rutinas.slice";
 import { fetchCategorias } from "../../features/categorias.slice";
@@ -18,8 +18,11 @@ const BADGE = {
 };
 
 /* ── Formulario de alta ─────────────────────────────── */
-const AddForm = ({ categorias, onCancel }) => {
+const AddForm = ({ categorias, ejercicios, onCancel }) => {
   const dispatch = useDispatch();
+  const [selectedEjercicios, setSelectedEjercicios] = useState([]);
+  const [showEjPicker, setShowEjPicker] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -27,13 +30,20 @@ const AddForm = ({ categorias, onCancel }) => {
     formState: { errors, isValid, isSubmitting },
   } = useForm({ resolver: joiResolver(rutinaSchema), mode: "onChange" });
 
+  const toggleEjercicio = (id) => {
+    setSelectedEjercicios((prev) =>
+      prev.includes(id) ? prev.filter((e) => e !== id) : [...prev, id]
+    );
+  };
+
   const onSubmit = async (data) => {
-    const payload = { ...data };
+    const payload = { ...data, ejercicios: selectedEjercicios };
     if (!payload.categoria) delete payload.categoria;
     const result = await dispatch(createRutina(payload));
     if (createRutina.fulfilled.match(result)) {
       toast.success("Rutina creada");
       reset();
+      setSelectedEjercicios([]);
       onCancel();
     } else {
       toast.error(result.payload || "Error al crear rutina");
@@ -98,6 +108,48 @@ const AddForm = ({ categorias, onCancel }) => {
             <X size={15} strokeWidth={2} />
           </button>
         </div>
+      </div>
+
+      {/* Selector de ejercicios */}
+      <div className="ej-picker">
+        <button
+          type="button"
+          className="ej-picker-toggle"
+          onClick={() => setShowEjPicker((v) => !v)}
+        >
+          <Flame size={13} strokeWidth={1.5} />
+          <span>
+            {selectedEjercicios.length === 0
+              ? "Agregar ejercicios"
+              : `${selectedEjercicios.length} ejercicio${selectedEjercicios.length !== 1 ? "s" : ""} seleccionado${selectedEjercicios.length !== 1 ? "s" : ""}`}
+          </span>
+          {showEjPicker
+            ? <ChevronUp size={13} strokeWidth={1.5} />
+            : <ChevronDown size={13} strokeWidth={1.5} />
+          }
+        </button>
+
+        {showEjPicker && (
+          <div className="ej-picker-list">
+            {ejercicios.length === 0 ? (
+              <p className="ej-picker-empty">No hay ejercicios cargados</p>
+            ) : (
+              ejercicios.map((ej) => (
+                <label key={ej._id} className="ej-picker-item">
+                  <input
+                    type="checkbox"
+                    checked={selectedEjercicios.includes(ej._id)}
+                    onChange={() => toggleEjercicio(ej._id)}
+                  />
+                  <span className="ej-picker-name">{ej.nombre}</span>
+                  {ej.descripcion && (
+                    <span className="ej-picker-desc">{ej.descripcion}</span>
+                  )}
+                </label>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </form>
   );
@@ -220,6 +272,7 @@ const RutinasManager = () => {
   const dispatch = useDispatch();
   const { data: rutinas, total, loading } = useSelector((s) => s.rutinas);
   const { data: categorias } = useSelector((s) => s.categorias);
+  const { data: ejercicios } = useSelector((s) => s.ejercicios);
   const { user } = useSelector((s) => s.auth);
 
   const [showAddForm, setShowAddForm] = useState(false);
@@ -285,6 +338,7 @@ const RutinasManager = () => {
       {showAddForm && !atLimit && (
         <AddForm
           categorias={categorias}
+          ejercicios={ejercicios}
           onCancel={() => setShowAddForm(false)}
         />
       )}

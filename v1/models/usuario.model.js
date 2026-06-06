@@ -27,6 +27,10 @@ const usuarioSchema = new mongoose.Schema(
       default: "plus",
     },
 
+    fotoPerfil: {
+      type: String,
+    },
+
     rutinas: [
       {
         type: mongoose.Schema.Types.ObjectId,

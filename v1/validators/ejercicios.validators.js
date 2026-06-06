@@ -12,6 +12,7 @@ export const agregarEjercicioSchema = Joi.object({
     "string.base": "La descripción debe ser una cadena de texto",
     "string.max": "La descripción no puede tener más de {#limit} caracteres",
   }),
+  imagen: Joi.string().uri().optional().allow(""),
 });
 
 export const actualizarEjercicioSchema = Joi.object({
@@ -25,4 +26,5 @@ export const actualizarEjercicioSchema = Joi.object({
     "string.base": "La descripción debe ser una cadena de texto",
     "string.max": "La descripción no puede tener más de {#limit} caracteres",
   }),
+  imagen: Joi.string().uri().optional().allow(""),
 });

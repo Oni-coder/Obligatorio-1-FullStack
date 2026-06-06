@@ -1,8 +1,8 @@
-import { User, Crown, Star, ArrowUpRight, Upload } from "lucide-react";
+import { User, Crown, Star, Upload } from "lucide-react";
 import { useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { changePlan } from "../../features/auth.slice";
+import { changePlan, updateUserPhoto } from "../../features/auth.slice";
 import api from "../../api/axios";
 
 const ProfileCard = () => {
@@ -30,11 +30,13 @@ const ProfileCard = () => {
     if (!file) return;
     const formData = new FormData();
     formData.append("imagen", file);
+    formData.append("folder", "perfil");
     try {
-      await api.post("/uploads", formData, {
+      const { data } = await api.post("/uploads", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      toast.success("Imagen subida correctamente");
+      dispatch(updateUserPhoto(data.url));
+      toast.success("Foto de perfil actualizada");
     } catch {
       toast.error("Error al subir imagen");
     }
@@ -43,7 +45,11 @@ const ProfileCard = () => {
   return (
     <div className="card profile-card">
       <div className="profile-avatar" onClick={() => fileRef.current?.click()} title="Subir foto">
-        <User size={36} strokeWidth={1.5} color="#898989" />
+        {user?.fotoPerfil ? (
+          <img src={user.fotoPerfil} alt="Foto de perfil" className="profile-avatar-img" />
+        ) : (
+          <User size={36} strokeWidth={1.5} color="#898989" />
+        )}
         <div className="profile-avatar-overlay">
           <Upload size={14} strokeWidth={2} color="white" />
         </div>
@@ -63,7 +69,6 @@ const ProfileCard = () => {
         <span>{plan}</span>
       </div>
 
-      {/* Usage report */}
       <div className="usage-report">
         <div className="usage-header">
           <span className="usage-label">

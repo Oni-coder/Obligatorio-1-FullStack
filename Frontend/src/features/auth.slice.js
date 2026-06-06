@@ -74,6 +74,12 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    updateUserPhoto: (state, action) => {
+      if (state.user) {
+        state.user = { ...state.user, fotoPerfil: action.payload };
+        localStorage.setItem("user", JSON.stringify(state.user));
+      }
+    },
   },
   extraReducers: (builder) => {
     const handlePending = (state) => {
@@ -110,5 +116,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, clearError, updateUserPhoto } = authSlice.actions;
 export default authSlice.reducer;

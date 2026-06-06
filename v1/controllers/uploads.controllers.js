@@ -2,6 +2,7 @@ import { upload } from "../middlewares/multer.middleware.js";
 import cloudinary from "../config/cloudinary.js";
 import { runMulterSingle } from "../utils/multer.util.js";
 import { uploadBufferToCloudinary } from "../utils/cloudinary.util.js";
+import Usuario from "../models/usuario.model.js";
 
 export const subirImagen = async (req, res) => {
   try {
@@ -19,6 +20,10 @@ export const subirImagen = async (req, res) => {
       resource_type: "auto",
       folder,
     });
+
+    if (folder === "perfil" && req.user?.id) {
+      await Usuario.findByIdAndUpdate(req.user.id, { fotoPerfil: result.secure_url });
+    }
 
     return res.json({
       url: result.secure_url,

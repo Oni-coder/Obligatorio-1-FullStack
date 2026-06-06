@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { store } from "./store/store";
 import ProtectedRoute from "./guards/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import EjerciciosPage from "./pages/EjerciciosPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
 
@@ -17,6 +18,7 @@ const App = () => (
         <Route path="/register" element={<RegisterPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/ejercicios" element={<EjerciciosPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

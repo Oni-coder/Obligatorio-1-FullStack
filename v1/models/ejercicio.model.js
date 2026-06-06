@@ -11,6 +11,9 @@ const ejercicioSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    imagen: {
+      type: String,
+    },
   },
   {
     timestamps: true,

@@ -1,13 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Dumbbell, Bell, LogOut, Settings } from "lucide-react";
+import { Dumbbell, LogOut } from "lucide-react";
 import { logout } from "../../features/auth.slice";
 
 const TABS = [
-  { id: "dashboard", label: "Dashboard" },
-  { id: "rutinas",   label: "Rutinas" },
-  { id: "ejercicios", label: "Ejercicios" },
-  { id: "categorias", label: "Categorias" },
+  { id: "dashboard",  label: "Dashboard",   path: "/dashboard" },
+  { id: "ejercicios", label: "Ejercicios",  path: "/ejercicios" },
 ];
 
 const Navbar = ({ activeTab = "dashboard" }) => {
@@ -32,6 +30,7 @@ const Navbar = ({ activeTab = "dashboard" }) => {
           <button
             key={tab.id}
             className={`navbar-tab${activeTab === tab.id ? " active" : ""}`}
+            onClick={() => navigate(tab.path)}
           >
             {tab.label}
           </button>
@@ -45,12 +44,6 @@ const Navbar = ({ activeTab = "dashboard" }) => {
             {user?.plan || "plus"}
           </span>
         </div>
-        <button className="navbar-icon-btn" title="Ajustes">
-          <Settings size={16} strokeWidth={1.5} />
-        </button>
-        <button className="navbar-icon-btn" title="Notificaciones">
-          <Bell size={16} strokeWidth={1.5} />
-        </button>
         <button className="navbar-icon-btn" title="Cerrar sesión" onClick={handleLogout}>
           <LogOut size={16} strokeWidth={1.5} />
         </button>
