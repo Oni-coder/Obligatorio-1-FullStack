@@ -151,6 +151,11 @@ export const crearRutinaService = async (data, userId) => {
 
     await Usuario.findByIdAndUpdate(userId, { $push: { rutinas: nuevaRutina._id } });
 
+    await nuevaRutina.populate([
+      { path: "categoria", select: "nombre descripcion" },
+      { path: "ejercicios", select: "nombre descripcion" },
+    ]);
+
     return nuevaRutina;
 
   } catch (error) {
@@ -212,7 +217,9 @@ export const actualizarRutinaService = async (id, data, userId) => {
   if (data.categoria !== undefined) camposUpdate.categoria = data.categoria;
   if (data.ejercicios !== undefined) camposUpdate.ejercicios = data.ejercicios;
 
-  const rutinaActualizada = await Rutina.findByIdAndUpdate(id, camposUpdate, { new: true });
+  const rutinaActualizada = await Rutina.findByIdAndUpdate(id, camposUpdate, { new: true })
+    .populate("categoria", "nombre descripcion")
+    .populate("ejercicios", "nombre descripcion");
 
   return rutinaActualizada;
 };
