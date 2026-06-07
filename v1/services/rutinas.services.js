@@ -121,7 +121,7 @@ export const crearRutinaService = async (data, userId) => {
     if (usuario.plan === "plus") {
       const cantidad = await Rutina.countDocuments({ user: userId });
 
-      if (cantidad >= 4) {
+      if (cantidad > 4) {
         const errorLimite = new Error("Límite de 4 rutinas alcanzado para plan plus");
         errorLimite.status = 403;
         throw errorLimite;
