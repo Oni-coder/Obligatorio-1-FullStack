@@ -1,4 +1,4 @@
-import { User, Crown, Star, Upload } from "lucide-react";
+import { User, Crown, Star, Upload, Infinity } from "lucide-react";
 import { useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
@@ -72,21 +72,23 @@ const ProfileCard = () => {
       <div className="usage-report">
         <div className="usage-header">
           <span className="usage-label">
-            {plan === "premium"
-              ? `${totalRutinas} rutinas`
-              : `${totalRutinas} / ${planLimit} rutinas`
-            }
+            {plan === "premium" ? `${totalRutinas} rutinas` : `${totalRutinas} / ${planLimit} rutinas`}
           </span>
           <span className="usage-pct">
-            {plan === "premium" ? "ilimitado" : `${Math.round(usagePct)}%`}
+            {plan === "premium"
+              ? <span className="usage-unlimited"><Infinity size={13} strokeWidth={2} /> ilimitadas</span>
+              : `${Math.round(usagePct)}%`
+            }
           </span>
         </div>
-        <div className="usage-bar-track">
-          <div
-            className={`usage-bar-fill ${usagePct >= 100 ? "usage-full" : ""}`}
-            style={{ width: `${plan === "premium" ? 60 : usagePct}%` }}
-          />
-        </div>
+        {plan !== "premium" && (
+          <div className="usage-bar-track">
+            <div
+              className={`usage-bar-fill ${usagePct >= 100 ? "usage-full" : ""}`}
+              style={{ width: `${usagePct}%` }}
+            />
+          </div>
+        )}
       </div>
 
       {plan === "plus" && (

@@ -1125,6 +1125,14 @@ body {
   color: var(--gray);
 }
 
+.usage-unlimited {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #9a7200;
+  font-weight: 600;
+}
+
 .usage-bar-track {
   height: 6px;
   background: var(--light);
