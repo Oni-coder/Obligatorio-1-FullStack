@@ -149,6 +149,8 @@ export const crearRutinaService = async (data, userId) => {
     const nuevaRutina = new Rutina({ ...data, user: userId });
     await nuevaRutina.save();
 
+    await Usuario.findByIdAndUpdate(userId, { $push: { rutinas: nuevaRutina._id } });
+
     return nuevaRutina;
 
   } catch (error) {
@@ -238,6 +240,7 @@ export const eliminarRutinaService = async (id, userId) => {
   }
 
   await rutina.deleteOne();
+  await Usuario.findByIdAndUpdate(userId, { $pull: { rutinas: rutina._id } });
 
   return rutina;
 };
