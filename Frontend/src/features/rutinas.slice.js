@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api/axios";
+import { logout } from "./auth.slice";
 
 export const fetchRutinas = createAsyncThunk(
   "rutinas/fetchAll",
@@ -94,7 +95,10 @@ const rutinasSlice = createSlice({
       .addCase(deleteRutina.fulfilled, (state, action) => {
         state.data = state.data.filter((r) => r._id !== action.payload);
         state.total = Math.max(0, state.total - 1);
-      });
+      })
+      .addCase(logout, () => ({
+        data: [], total: 0, totalPages: 0, page: 1, limit: 10, loading: false, error: null,
+      }));
   },
 });
 

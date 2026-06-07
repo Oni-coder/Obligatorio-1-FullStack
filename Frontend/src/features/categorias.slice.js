@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../api/axios";
+import { logout } from "./auth.slice";
 
 export const fetchCategorias = createAsyncThunk(
   "categorias/fetchAll",
@@ -30,7 +31,8 @@ const categoriasSlice = createSlice({
       .addCase(fetchCategorias.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+      .addCase(logout, () => ({ data: [], loading: false, error: null }));
   },
 });
 
