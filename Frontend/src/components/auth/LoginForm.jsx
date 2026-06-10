@@ -26,7 +26,8 @@ const LoginForm = () => {
     dispatch(clearError());
     const result = await dispatch(loginUser(data));
     if (loginUser.fulfilled.match(result)) {
-      navigate("/dashboard");
+      const role = result.payload.user?.role;
+      navigate(role === "admin" ? "/admin" : "/dashboard");
     }
   };
 

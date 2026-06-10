@@ -38,6 +38,11 @@ export const cambiarPlanAPremiumService = async (userId) => {
     return usuario;
 };
 
+export const obtenerUsuariosService = async () => {
+    const usuarios = await Usuario.find({}, "email role plan fotoPerfil rutinas createdAt").lean();
+    return usuarios;
+};
+
 export const crearUsuarioService = async (data) => {
     try {
         const usuario = new Usuario(data);

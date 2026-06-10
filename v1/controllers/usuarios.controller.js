@@ -1,7 +1,17 @@
 import {
   crearUsuarioService,
   cambiarPlanAPremiumService,
+  obtenerUsuariosService,
 } from "../services/usuarios.services.js";
+
+export const obtenerUsuarios = async (req, res, next) => {
+  try {
+    const usuarios = await obtenerUsuariosService();
+    res.json({ message: "Usuarios obtenidos", usuarios });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const agregarUsuario = async (req, res, next) => {
   try {
