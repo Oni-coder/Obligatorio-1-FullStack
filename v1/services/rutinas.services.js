@@ -66,7 +66,7 @@ export const obtenerRutinasService = async ({ nombre, nivelDificultad, categoria
     .limit(limitNumber)
     .populate("user", "email plan")
     .populate("categoria", "nombre descripcion")
-    .populate("ejercicios", "nombre descripcion");
+    .populate("ejercicios", "nombre descripcion imagen");
 
   return { total, page: pageNumber, limit: limitNumber, totalPages: Math.ceil(total / limitNumber), data: rutinas };
 };
@@ -83,7 +83,7 @@ export const buscarRutinaPorIdService = async (id, userId) => {
   const rutina = await Rutina.findById(id)
     .populate("user", "email plan")
     .populate("categoria", "nombre descripcion")
-    .populate("ejercicios", "nombre descripcion");
+    .populate("ejercicios", "nombre descripcion imagen");
 
   if (!rutina) {
     const error = new Error("Rutina no encontrada");
@@ -153,7 +153,7 @@ export const crearRutinaService = async (data, userId) => {
 
     await nuevaRutina.populate([
       { path: "categoria", select: "nombre descripcion" },
-      { path: "ejercicios", select: "nombre descripcion" },
+      { path: "ejercicios", select: "nombre descripcion imagen" },
     ]);
 
     return nuevaRutina;
@@ -219,7 +219,7 @@ export const actualizarRutinaService = async (id, data, userId) => {
 
   const rutinaActualizada = await Rutina.findByIdAndUpdate(id, camposUpdate, { new: true })
     .populate("categoria", "nombre descripcion")
-    .populate("ejercicios", "nombre descripcion");
+    .populate("ejercicios", "nombre descripcion imagen");
 
   return rutinaActualizada;
 };

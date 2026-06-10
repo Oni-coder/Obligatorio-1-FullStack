@@ -5,7 +5,7 @@ import { joiResolver } from "@hookform/resolvers/joi";
 import { toast } from "react-toastify";
 import {
   Plus, Flame, Clock, Pencil, Trash2, Check, X,
-  Search, SlidersHorizontal, ChevronDown, ChevronUp,
+  Search, SlidersHorizontal, ChevronDown, ChevronUp, ImageOff,
 } from "lucide-react";
 import { fetchRutinas, createRutina, updateRutina, deleteRutina } from "../../features/rutinas.slice";
 import { fetchCategorias } from "../../features/categorias.slice";
@@ -159,6 +159,7 @@ const AddForm = ({ categorias, ejercicios, onCancel }) => {
 const RutinaRow = ({ rutina, categorias, ejercicios }) => {
   const dispatch = useDispatch();
   const [editing, setEditing] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const [showEjPicker, setShowEjPicker] = useState(false);
   const [editData, setEditData] = useState({
     nombre: rutina.nombre,
@@ -167,6 +168,8 @@ const RutinaRow = ({ rutina, categorias, ejercicios }) => {
     categoria: rutina.categoria?._id || "",
     ejercicios: (rutina.ejercicios || []).map((e) => e._id ?? e),
   });
+
+  const ejCount = (rutina.ejercicios || []).length;
 
   const toggleEjercicio = (id) => {
     setEditData((prev) => ({
@@ -294,29 +297,56 @@ const RutinaRow = ({ rutina, categorias, ejercicios }) => {
   }
 
   return (
-    <div className="rutina-item">
-      <div className="rutina-item-icon">
-        <Flame size={15} strokeWidth={1.5} color="#ffd85f" />
+    <div className={`rutina-item-wrapper${expanded ? " rutina-item-wrapper--expanded" : ""}`}>
+      <div className="rutina-item">
+        <div className="rutina-item-icon">
+          <Flame size={15} strokeWidth={1.5} color="#ffd85f" />
+        </div>
+        <div className="rutina-item-info">
+          <span className="rutina-item-nombre">{rutina.nombre}</span>
+          <span className="rutina-item-cat">{rutina.categoria?.nombre || "Sin categoría"}</span>
+        </div>
+        <div className="rutina-duration">
+          <Clock size={11} strokeWidth={1.5} />
+          <span>{rutina.duracion} min</span>
+        </div>
+        <span className={`difficulty-badge ${BADGE[rutina.nivelDificultad] || ""}`}>
+          {rutina.nivelDificultad}
+        </span>
+        <div className="rutina-actions">
+          <button className="btn-icon-edit" onClick={() => setEditing(true)} title="Editar">
+            <Pencil size={13} strokeWidth={1.5} />
+          </button>
+          <button className="btn-icon-delete" onClick={handleDelete} title="Eliminar">
+            <Trash2 size={13} strokeWidth={1.5} />
+          </button>
+          {ejCount > 0 && (
+            <button
+              className="rutina-expand-btn"
+              onClick={() => setExpanded((v) => !v)}
+              title={expanded ? "Colapsar" : `Ver ${ejCount} ejercicio${ejCount !== 1 ? "s" : ""}`}
+            >
+              {expanded ? <ChevronUp size={13} strokeWidth={2} /> : <ChevronDown size={13} strokeWidth={2} />}
+            </button>
+          )}
+        </div>
       </div>
-      <div className="rutina-item-info">
-        <span className="rutina-item-nombre">{rutina.nombre}</span>
-        <span className="rutina-item-cat">{rutina.categoria?.nombre || "Sin categoría"}</span>
-      </div>
-      <div className="rutina-duration">
-        <Clock size={11} strokeWidth={1.5} />
-        <span>{rutina.duracion} min</span>
-      </div>
-      <span className={`difficulty-badge ${BADGE[rutina.nivelDificultad] || ""}`}>
-        {rutina.nivelDificultad}
-      </span>
-      <div className="rutina-actions">
-        <button className="btn-icon-edit" onClick={() => setEditing(true)} title="Editar">
-          <Pencil size={13} strokeWidth={1.5} />
-        </button>
-        <button className="btn-icon-delete" onClick={handleDelete} title="Eliminar">
-          <Trash2 size={13} strokeWidth={1.5} />
-        </button>
-      </div>
+
+      {expanded && (
+        <div className="rutina-ejercicios-expand">
+          {(rutina.ejercicios || []).map((ej) => (
+            <div key={ej._id} className="rutina-ej-chip">
+              <div className="rutina-ej-chip-img">
+                {ej.imagen
+                  ? <img src={ej.imagen} alt={ej.nombre} />
+                  : <ImageOff size={12} strokeWidth={1.2} color="#c8c9cc" />
+                }
+              </div>
+              <span className="rutina-ej-chip-nombre">{ej.nombre}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
