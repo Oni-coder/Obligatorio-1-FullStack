@@ -25,6 +25,5 @@ router.use("/rutinas", rutinasRouter);
 router.use("/categorias", categoriasRouter);
 router.use("/ejercicios", ejerciciosRouter);
 router.use("/uploads", uploadsRouter)
-//Ruta para verificar que el token es válido
 
 export default router;
